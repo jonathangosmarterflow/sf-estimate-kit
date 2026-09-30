@@ -3,66 +3,30 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>The Estimate Funnel Kit - instant quote funnels for any niche | Smarter Flow</title>
-<meta name="description" content="A studio, 14 niche presets and a builder prompt your AI reads to stand up an instant estimate funnel for any service business in minutes. Opens in your browser on any computer, nothing to install. $1.">
+<title>The instant quote funnel from the video, yours for $1 | The Estimate Funnel Kit</title>
+<meta name="description" content="The instant quote funnel from the video, yours for $1. It opens in your browser. Your AI fills in your prices, or you type them in. Your visitors see a price range and a timeline, then book a call.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <!--
+  v2 (2026-09-30): one call to action
   ============================================================================
-  HEADLINE OPTIONS (only ONE is live in the markup below; swap the <h1> text)
-  ============================================================================
-  A  (LIVE)  "Build an instant estimate funnel for your niche, in minutes."
-             Outcome-first, passes the Corner Store Test, works for a buyer who
-             arrives from any traffic source. The Claude hook lives in the
-             sub-headline so the page still matches the video without being
-             chained to one AI.
-
-  B          "Claude built my quote funnel. This is the kit it used."
-             Maximum message match with the video title and thumbnail. Higher
-             congruence for YouTube traffic, weaker for anyone arriving later
-             or from search, and it narrows a kit that runs on any AI.
-
-  Swap rule: if the recorded video title leads with Claude, test B for the
-  first 100 visitors and keep whichever converts. One change at a time.
-  ============================================================================
-
-  RED TEAM R2 (Gemini, 2026-09-19) - what changed on this page and why
-  ============================================================================
-  1. TRUST LINE at every buy button: "One payment of $1. No subscription.
-     Nothing else at checkout." A $1 offer is the classic bait for a hidden
-     continuity program, so the fear has to be answered where the click is.
-     ONLY WHAT IS TRUE: the checkout is a single $1 product with no order
-     bump. We do NOT write "no upsells ever", because a future paid rung on
-     the ladder is not ruled out. The claim is about THIS checkout.
-  2. AI MESSAGE REPOSITIONED. The old copy hyped the AI and then undercut it
-     in the same breath ("no AI at all still works", "the AI is only asked to
-     fill in a config"). It now leads with the AI doing the work and carries
-     the manual path as a fallback, not as a disclaimer.
-  3. ONE HIGHLEVEL FRAMING, everywhere on the page: "A single web page that
-     works on any website. A HighLevel install guide is included." The
-     who-it-is-for card and the FAQ both say that and nothing else.
-  4. NO DEVELOPER JARGON. "Deterministic pricing code" is gone. The page says
-     the math is built in, so the AI cannot invent a price or break the
-     numbers, and only fills in services and ranges.
-  5. REJECTED RED-TEAM REMOVAL: Gemini wanted the footer link to
-     ai.gosmarterflow.com deleted, arguing the $1 kit then reads as bait for
-     high-ticket services. It STAYS, by the founder's explicit wish: a real
-     project lead who lands here needs a path to the real funnel. It is
-     instead made quiet and honest, in small text, after everything else, so
-     it cannot read as the purpose of the page.
-  ============================================================================
-
-  v1.1 (2026-09-30) - hosted first, matched to the kit release
-  ============================================================================
-  Opens in the browser on any computer, nothing to install, first result in
-  about a minute. Inside-the-kit list now carries: leads by email with no CRM,
-  the HighLevel quick install, the agency pitch file, tested on Claude, GPT and
-  Gemini. Two FAQ entries added (Do I need a Mac? / Where do my leads go?).
-  Every live-link or QR claim is wrapped in data-live="on" and renders ONLY
-  when LIVE_LINKS is true (see the script). Trust lines, the single HighLevel
-  framing and the quiet footer line are unchanged.
+  Traffic is warm, from the video. The page confirms "you are in the right
+  place" and sells one click. Agreed by two outside red teams and the founder.
+  - Removed: the demo buttons (the demo still lives at ./demo/ and is linked
+    from the delivery page), the empty video card, the problem section, the
+    three kit cards, who-it-is-for, the straight talk paragraph, extra FAQs.
+  - The only clickable things: the buy button (top bar, hero, offer box), the
+    FAQ toggles and the footer links. No second button anywhere.
+  - Hero visual is the real product: the demo's result card for the HVAC
+    example and a crop of the Studio's Knobs tab (img/). When YT_VIDEO_ID is
+    set, the video replaces that visual.
+  - AI wording: the kit does the math from the owner's settings, and the owner
+    checks the prices the AI entered before publishing. Nothing stronger.
+  - Kept from r2: the trust line at every buy button, the single HighLevel
+    framing, the quiet footer line.
+  - Live link and QR claims render only when LIVE_LINKS is true (data-live).
   ============================================================================
 -->
 
@@ -78,57 +42,67 @@
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
-body{font-family:var(--body);color:var(--ink);background:var(--bg);background-image:var(--ground);background-attachment:fixed;line-height:1.6;font-size:17px}
-.wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+body{font-family:var(--body);color:var(--ink);background:var(--bg);background-image:var(--ground);background-attachment:fixed;line-height:1.6;font-size:17px;overflow-x:hidden}
+img{max-width:100%;height:auto;display:block}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
 .wordmark{font-family:var(--head);font-weight:800;letter-spacing:-.03em;color:var(--ink);text-decoration:none;font-size:20px}
 .wordmark b{background:linear-gradient(100deg,var(--ind),var(--pk));-webkit-background-clip:text;background-clip:text;color:transparent}
 nav{position:sticky;top:0;background:rgba(255,255,255,.93);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);z-index:50}
-.nav-in{max-width:1040px;margin:0 auto;padding:12px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.nav-in{max-width:1120px;margin:0 auto;padding:12px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px}
 
 .btn{display:block;width:100%;background:var(--grad);color:#fff;font-family:var(--head);font-weight:700;font-size:18px;border:0;border-radius:14px;padding:18px 24px;min-height:56px;cursor:pointer;text-decoration:none;text-align:center;box-shadow:0 10px 26px rgba(124,58,237,.24)}
 .btn:active{transform:translateY(1px)}
 .btn.sm{display:inline-block;width:auto;font-size:13px;padding:10px 14px;min-height:0;border-radius:11px;box-shadow:none}
-.btn.ghost{background:#fff;color:var(--ind);border:1.5px solid var(--line);box-shadow:none;font-size:16px;padding:15px 24px;min-height:0}
-.btn-note{display:block;margin-top:12px;font-size:14px;color:var(--muted);text-align:center}
+.btn-note{display:block;margin-top:6px;font-size:14px;color:var(--muted);text-align:center}
 /* Trust line. Sits at every buy button. Says only what is true of this checkout. */
-.trust{display:block;margin-top:10px;font-size:14px;font-weight:600;color:var(--ink);text-align:center}
+.trust{display:block;margin-top:12px;font-size:14.5px;font-weight:600;color:var(--ink);text-align:center}
 .pill{display:inline-block;background:var(--grad);color:#fff;font-family:var(--head);font-weight:700;font-size:11px;letter-spacing:.06em;text-transform:uppercase;border-radius:999px;padding:6px 14px;margin-bottom:16px}
-h1{font-family:var(--head);font-weight:800;letter-spacing:-.03em;font-size:clamp(30px,8vw,48px);line-height:1.08;margin-bottom:16px}
+h1{font-family:var(--head);font-weight:800;letter-spacing:-.03em;font-size:clamp(31px,8.4vw,50px);line-height:1.08;margin-bottom:16px}
 h1 .hl{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
-h2{font-family:var(--head);font-weight:800;letter-spacing:-.02em;font-size:clamp(24px,6vw,32px);line-height:1.15;margin-bottom:12px}
-h3{font-family:var(--head);font-weight:700;letter-spacing:-.02em;font-size:18px;margin-bottom:8px}
+h2{font-family:var(--head);font-weight:800;letter-spacing:-.02em;font-size:clamp(24px,6vw,32px);line-height:1.15;margin-bottom:24px}
+h3{font-family:var(--head);font-weight:700;letter-spacing:-.02em;font-size:18px;line-height:1.3;margin-bottom:6px}
 .sec{padding:44px 0;border-top:1px solid var(--line)}
 .sec.soft{background:var(--bg-soft)}
-.lead{font-size:17px;color:var(--muted);margin-bottom:24px;max-width:720px}
 .center{text-align:center}
-.center .lead{margin-left:auto;margin-right:auto}
 
-.hero{padding:34px 0 40px}
-.hero-grid{display:grid;grid-template-columns:1fr;gap:28px;align-items:center}
-.hero .sub{font-size:17.5px;color:var(--muted);margin-bottom:20px}
-.hero .ctas{display:grid;gap:10px}
+.hero{padding:30px 0 40px}
+.hero-grid{display:grid;grid-template-columns:1fr;gap:30px;align-items:center}
+.hero .sub{font-size:17.5px;color:var(--muted);margin-bottom:22px;max-width:560px}
+.hero .small{display:block;font-size:14px;color:var(--muted);text-align:center;margin-top:4px}
 
-/* Video stage (the one dark moment on the page) */
-.stage{background:linear-gradient(150deg,#191430,#2c2154 55%,#3b2a68);border-radius:22px;padding:6px;box-shadow:0 30px 70px rgba(25,20,48,.3)}
-.stage-top{display:flex;align-items:center;gap:9px;padding:13px 16px 11px;color:#fff;font-family:var(--head);font-weight:700;font-size:13.5px;letter-spacing:-.01em}
-.stage-top .dot{width:8px;height:8px;border-radius:50%;background:#2fe39a;box-shadow:0 0 0 4px rgba(47,227,154,.16)}
-.stage-tag{margin-left:auto;font-family:var(--body);font-weight:600;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:#9a91bd}
-.videobox{position:relative;width:100%;padding-top:56.25%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.11);border-radius:16px;overflow:hidden}
+/* Hero visual: the real product on the one dark card. */
+.stage{background:linear-gradient(150deg,#191430,#2c2154 55%,#3b2a68);border-radius:24px;padding:22px 18px 18px;box-shadow:0 30px 70px rgba(25,20,48,.3);position:relative}
+.phone-fig{margin:0 auto;width:250px;max-width:78%}
+.phone{background:#0d0b16;border-radius:38px;padding:9px;border:1px solid rgba(255,255,255,.16);box-shadow:0 24px 48px rgba(0,0,0,.45)}
+.phone img{border-radius:30px;width:100%}
+.cap{display:block;color:#c9c2e4;font-size:13px;line-height:1.45;text-align:center;margin-top:12px}
+.knobs-fig{display:none}
+.knobs-card{background:#fff;border-radius:14px;padding:6px;box-shadow:0 22px 50px rgba(0,0,0,.4)}
+.knobs-card img{border-radius:9px;width:100%}
+.knobs-card .cap{color:var(--ink);font-weight:700;font-family:var(--head);font-size:13px;margin:8px 0 4px}
+/* The video, once YT_VIDEO_ID is set, replaces the visual above. */
+.videobox{position:relative;width:100%;padding-top:56.25%;border-radius:16px;overflow:hidden;background:rgba(255,255,255,.05)}
 .videobox iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
-.videobox .ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:20px;text-align:center;color:#c9c2e4;font-size:14.5px}
-.videobox .ph b{color:#fff;font-family:var(--head);font-size:16px}
-.stage-foot{padding:14px 16px 16px}
-.stage-foot p{color:#9a91bd;font-size:13.5px;margin-bottom:12px}
 
-.cards{display:grid;grid-template-columns:1fr;gap:18px;align-items:start}
-.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:24px 22px;box-shadow:0 16px 44px rgba(124,58,237,.07)}
-.card .step{font-family:var(--head);font-weight:800;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:9px}
-.card ul{list-style:none}
-.card li{position:relative;padding:0 0 11px 26px;font-size:15.5px;color:var(--muted)}
-.card li::before{content:"\2713";position:absolute;left:0;top:0;color:var(--vio);font-weight:800}
-.card li b{color:var(--ink);font-weight:700}
-.straight{background:#fff;border:1px solid var(--line);border-left:4px solid var(--vio);border-radius:12px;padding:18px 20px;font-size:15.5px;color:var(--muted);margin-top:24px}
-.straight b{color:var(--ink)}
+/* How it works */
+.steps{display:grid;grid-template-columns:1fr;gap:16px;counter-reset:st;list-style:none}
+.steps li{counter-increment:st;background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px 20px 20px;box-shadow:0 16px 44px rgba(124,58,237,.07)}
+.steps li::before{content:counter(st);display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;background:var(--grad);color:#fff;font-family:var(--head);font-weight:800;font-size:16px;margin-bottom:12px}
+.steps p{color:var(--muted);font-size:15.5px}
+
+/* What you get */
+.get{list-style:none;max-width:880px;margin:0 auto;display:grid;grid-template-columns:1fr;gap:4px 34px}
+.get li{position:relative;padding:8px 0 8px 30px;font-size:16.5px;border-bottom:1px solid var(--line)}
+.get li::before{content:"\2713";position:absolute;left:2px;top:8px;color:var(--vio);font-weight:800}
+.need{max-width:880px;margin:18px auto 0;color:var(--muted);font-size:14.5px;text-align:center}
+
+/* Offer */
+.price-box{background:#fff;border:2px solid var(--vio);border-radius:22px;padding:30px 22px;text-align:center;box-shadow:0 24px 64px rgba(124,58,237,.16);max-width:560px;margin:0 auto}
+.price-box .now{font-family:var(--head);font-weight:800;font-size:64px;letter-spacing:-.03em;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1}
+.price-box .once{color:var(--muted);font-size:16px;margin:10px 0 22px;font-weight:600}
+.why{text-align:left;margin:24px auto 0;color:var(--muted);font-size:15.5px;max-width:560px}
+.why p+p{margin-top:12px}
+.why b{color:var(--ink)}
 
 .faq{max-width:760px;margin:0 auto}
 .faq details{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:12px}
@@ -138,13 +112,6 @@ h3{font-family:var(--head);font-weight:700;letter-spacing:-.02em;font-size:18px;
 .faq details[open] summary::after{content:"\2212"}
 .faq p{color:var(--muted);font-size:15.5px;margin-top:10px}
 
-.price-box{background:#fff;border:2px solid var(--vio);border-radius:22px;padding:30px 22px;text-align:center;box-shadow:0 24px 64px rgba(124,58,237,.16);max-width:540px;margin:0 auto}
-.price-box .now{font-family:var(--head);font-weight:800;font-size:58px;letter-spacing:-.03em;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1}
-.price-box ul{list-style:none;text-align:left;margin:20px 0 24px}
-.price-box li{position:relative;padding:0 0 10px 28px;font-size:16px}
-.price-box li::before{content:"\2713";position:absolute;left:0;color:var(--vio);font-weight:800}
-.why{text-align:left;margin:24px auto 0;color:var(--muted);font-size:15.5px;max-width:640px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px}
-.why b{color:var(--ink)}
 footer{border-top:1px solid var(--line);padding:30px 20px 48px;text-align:center;color:var(--muted2);font-size:13.5px}
 footer a{color:var(--ind);text-decoration:none;font-weight:600}
 .footline{max-width:640px;margin:0 auto 16px;color:var(--muted);font-size:14.5px;line-height:1.7}
@@ -152,21 +119,48 @@ footer a{color:var(--ind);text-decoration:none;font-weight:600}
 .footline.quiet{margin:22px auto 0;font-size:12.5px;color:#9a93ab;line-height:1.6}
 .footline.quiet a{color:#9a93ab;font-weight:500;text-decoration:underline}
 
+@media(min-width:600px){
+  .stage{padding:26px 26px 24px}
+  /* phone on the right; its caption top left; the knobs card hangs off the
+     phone's bottom left, over Start over only, so it never hides the price,
+     the service, the timeline, the button or the estimate line */
+  .visual-in{--pw:250px;position:relative}
+  .phone-fig{width:var(--pw);max-width:none;margin:0 0 0 auto}
+  .phone-cap{position:absolute;left:0;top:2px;width:calc(100% - var(--pw) - 30px);text-align:left;margin:0;font-size:14px}
+  .phone-cap b{display:block;color:#fff;font-family:var(--head);font-weight:700;font-size:16px;margin-bottom:2px}
+  .knobs-fig{display:block;position:relative;z-index:2;width:calc(100% - var(--pw) + 64px);margin-top:calc(var(--pw) * -0.25 - 11px)}
+}
 @media(min-width:900px){
-  .wrap{padding:0 24px}
-  .nav-in{padding:14px 24px}
+  .wrap{padding:0 28px}
+  .nav-in{padding:14px 28px}
   .wordmark{font-size:22px}
-  .hero{padding:66px 0 60px}
-  .hero-grid{grid-template-columns:1.04fr .96fr;gap:52px}
-  .hero .ctas{grid-template-columns:auto auto;justify-content:start;align-items:center;gap:14px}
-  .btn{display:inline-block;width:auto;padding:18px 38px}
-  .btn-note{text-align:left}
-  .hero .trust{text-align:left}
+  .hero{padding:48px 0 60px}
+  .hero-grid{grid-template-columns:1.02fr .98fr;gap:48px}
+  .btn{display:inline-block;width:auto;padding:18px 40px}
+  .hero .trust,.hero .small{text-align:left}
   .sec{padding:64px 0}
-  .cards{grid-template-columns:repeat(3,1fr);gap:22px}
-  .price-box{padding:38px 34px}
+  .steps{grid-template-columns:repeat(3,1fr);gap:22px}
+  .get{grid-template-columns:1fr 1fr}
+  .price-box{padding:38px 36px}
   .price-box .btn{width:100%}
-  .btn-note.mid{text-align:center}
+  .visual-in{--pw:262px}
+}
+/* The camera view: a 1920x1080 screen recording. Everything a size up. */
+@media(min-width:1600px){
+  .wrap,.nav-in{max-width:1320px}
+  body{font-size:18px}
+  h1{font-size:60px}
+  .hero .sub{font-size:20px;max-width:600px}
+  .hero{padding:56px 0 64px}
+  .btn{font-size:20px;padding:20px 46px}
+  .trust{font-size:16px}
+  .hero .small{font-size:15px}
+  .pill{font-size:12.5px;padding:7px 16px}
+  .visual-in{--pw:292px}
+  .cap{font-size:14px}
+  .phone-cap{font-size:15.5px}
+  .phone-cap b{font-size:18px}
+  .knobs-card .cap{font-size:14.5px}
 }
 </style>
 </head>
@@ -175,165 +169,90 @@ footer a{color:var(--ind);text-decoration:none;font-weight:600}
 
 <header class="hero"><div class="wrap"><div class="hero-grid">
 <div>
-<span class="pill">The Estimate Funnel Kit &middot; $1</span>
-<h1>Build an instant <span class="hl">estimate funnel</span> for your niche, in minutes.</h1>
-<p class="sub">Works on any computer, nothing to install, first result in about a minute. Your AI reads your price list and fills it in: point Claude, ChatGPT or Gemini at the kit, answer a few questions about what you sell, and you have your own quote page. No AI? The Studio walks you through it by hand.</p>
-<div class="ctas">
-  <a class="btn cta" href="#get">Get the kit for $1</a>
-  <a class="btn ghost" href="./demo/">Try the live demo</a>
-</div>
+<span class="pill">As built in the video &middot; $1</span>
+<h1>The instant quote funnel from the video. <span class="hl">Yours for $1.</span></h1>
+<p class="sub">It opens in your browser. Your AI fills in your prices, or you type them in. Your visitors see a price range and a timeline, then book a call.</p>
+<a class="btn cta" href="#get">Get the kit for $1</a>
 <span class="trust">One payment of $1. No subscription. Nothing else at checkout.</span>
-<span class="btn-note">Mac, Windows or Chromebook. Nothing to install. No account to create.</span>
+<span class="small">Secure checkout on gosmarterflow.com. Instant access in your browser after you pay.</span>
+<span class="small">Mac, Windows or Chromebook. Nothing to install.</span>
 </div>
 
-<div class="stage" aria-label="Watch the kit being used">
-  <div class="stage-top"><span class="dot"></span> The Estimate Funnel Kit <span class="stage-tag">Watch it built</span></div>
-  <div class="videobox" id="videobox">
-    <div class="ph"><b>The walkthrough video</b><span>An HVAC quote funnel, built and published on camera.</span></div>
-  </div>
-  <div class="stage-foot">
-    <p>Prefer to poke at it yourself? The demo is a real funnel built with this kit. It writes nowhere and books nothing.</p>
-    <a class="btn ghost" href="./demo/" style="background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.18)">Try the live demo</a>
+<div class="stage" id="heroVisual">
+  <div class="visual-in">
+    <figure class="phone-fig">
+      <div class="phone"><img src="img/estimate-result-hvac.webp" width="780" height="1506" alt="The finished HVAC quote funnel on a phone: an estimated price range of $3,825 to $8,675 for an AC install or replace, 1 to 3 days, what drives the price, and a Book your free call button."></div>
+      <figcaption class="cap phone-cap"><b>The example from the video.</b> An estimate, not a binding quote.</figcaption>
+    </figure>
+    <figure class="knobs-fig">
+      <div class="knobs-card">
+        <img src="img/studio-knobs-range.webp" width="940" height="536" alt="The Studio's Knobs tab: three sample estimates for a small, typical and big job above the Range width slider." loading="lazy">
+        <figcaption class="cap">One slider changes every range.</figcaption>
+      </div>
+    </figure>
   </div>
 </div>
 </div></div></header>
 
 <section class="sec"><div class="wrap">
-<h2>A price question you never answer is a lead you never get.</h2>
-<p class="lead">Every service business has the same hole in its site. Someone wants to know what a job costs, there is nothing on the page that tells them, so they fill in a form and wait, or they leave and ask somebody faster. A number on the screen, right then, changes that conversation.</p>
-<p style="font-size:17px;max-width:720px"><b>The Estimate Funnel Kit is the thing we use to close that hole.</b> Your AI reads your price list and fills in your services and your ranges. The math is built in, so the AI can never invent a price or break the numbers.</p>
+<h2 class="center">How it works</h2>
+<ol class="steps">
+  <li><h3>Open it and pick your niche.</h3><p>A working example funnel is on screen straight away. 14 niches are included.</p></li>
+  <li><h3>Put your prices in.</h3><p>Paste your price list into Claude, ChatGPT or Gemini with the included prompt, or type the numbers in. Check each one, then drag the sliders and compare a range with a real past job.</p></li>
+  <li><h3>Publish and send yourself a test lead.</h3><p><span data-live="on" hidden>A live link and QR code in seconds, or one file you host.</span><span data-live="off">One file you put on any website.</span> Leads go to your CRM or straight to your email.</p></li>
+</ol>
 </div></section>
 
 <section class="sec soft"><div class="wrap">
-<h2 class="center">What is in the kit</h2>
-<p class="lead center">Opens in your browser on a Mac, Windows or a Chromebook. Nothing to install, or keep an offline copy.</p>
-<div class="cards">
-  <div class="card">
-    <div class="step">The tool</div>
-    <h3>The Studio, six tabs</h3>
-    <ul>
-      <li><b>Niche, Business, Prices, Knobs, Train, Publish.</b> One screen each, in order. Pick a niche and a working example funnel is on screen in about a minute.</li>
-      <li><b>14 niche presets</b> including HVAC, plumbing, roofing, electrical, garage door, pest control, cleaning, landscaping, painting, auto detailing, web design, consulting, agency and a generic service preset.</li>
-      <li><b>0 to 100 knobs</b> for range width, price level, safety buffer, rush premium, rounding and how much detail the visitor sees. Every slider says in plain words what it just did to the number.</li>
-    </ul>
-  </div>
-  <div class="card">
-    <div class="step">The AI part</div>
-    <h3>Your AI does the setup</h3>
-    <ul>
-      <li><b>The builder prompt</b> for any chatbot, tested on Claude, GPT and Gemini models. It interviews you, reads your price list and whatever else you paste in (site copy, old invoices), and writes your pricing in for you.</li>
-      <li><b>A Claude Code skill</b> inside the folder. Open the folder in Claude Code, say "build my estimate funnel", and it builds the page.</li>
-      <li><b>A Config Doctor</b> that checks the AI's work, repairs the usual mess, and tells you in plain English what it changed and what still looks wrong.</li>
-      <li><b>No AI? The Studio walks you through it by hand</b>, one screen at a time, and you end up at the same page.</li>
-    </ul>
-  </div>
-  <div class="card">
-    <div class="step">Making it real</div>
-    <h3>Install, calibrate, keep</h3>
-    <ul>
-      <li><b>One page, any website</b>: paste it into your site, or open it straight off your desktop.<span data-live="on" hidden> Or click "Get my live link" for a public link and a QR code in seconds, with no hosting.</span> <b>A HighLevel install guide is included</b>, with a 5-minute quick install.</li>
-      <li><b>Leads where you want them</b>: your CRM, your email with no CRM, or nowhere yet. A test lead confirms it arrives.</li>
-      <li><b>Train on past jobs</b>: paste what you quoted and what the job actually came to, and it suggests a correction per service. Small moves, you accept each one.</li>
-      <li><b>The playbook</b>: the lessons from running an estimate funnel in our own business, written down as rules you can argue with.</li>
-    </ul>
-  </div>
-</div>
-<div class="straight"><b>Straight talk:</b> the math is built in, so the AI can never invent a price or break the numbers. It only fills in your services and your ranges, and the Config Doctor checks its work before you publish. That is also why the answer does not change because you used a cheaper model.</div>
-</div></section>
-
-<section class="sec"><div class="wrap">
-<h2 class="center">Who this is for</h2>
-<div class="cards">
-  <div class="card">
-    <div class="step">Agencies</div>
-    <h3>Agencies selling to local clients</h3>
-    <ul>
-      <li>One kit, every client account. Swap the preset, swap the prices, ship.</li>
-      <li>A single web page that works on any website. A HighLevel install guide is included.</li>
-      <li>An agency pitch file: the email, follow-up and 60-second script for offering it to a local client.</li>
-    </ul>
-  </div>
-  <div class="card">
-    <div class="step">Operators</div>
-    <h3>Local service businesses</h3>
-    <ul>
-      <li>Give the visitor a range before they call, then send them to your booking link.</li>
-      <li>Your prices, your wording, your brand color, on a page you own.</li>
-    </ul>
-  </div>
-  <div class="card">
-    <div class="step">Consultants</div>
-    <h3>Anyone quoting custom work</h3>
-    <ul>
-      <li>Hours instead of dollars, or both, with your rate applied.</li>
-      <li>Stop rewriting the same ballpark email. Let the page say it.</li>
-    </ul>
-  </div>
-</div>
-</div></section>
-
-<section class="sec soft" id="get"><div class="wrap">
-<div class="price-box">
-<span class="pill">Instant access</span>
-<div style="margin:8px 0 2px"><span class="now">$1</span></div>
-<p style="color:var(--muted);font-size:15px">One dollar, one download, yours to keep.</p>
-<ul>
-<li>The Studio, in your browser, nothing to install</li>
-<li>14 niche presets with example pricing to edit</li>
-<li>The builder prompt, tested on Claude, GPT and Gemini</li>
-<li>The Claude Code skill, inside the folder</li>
-<li>Leads to your CRM, or your email with no CRM</li>
-<li>The HighLevel guide, the agency pitch and the playbook</li>
+<h2 class="center">What you get</h2>
+<ul class="get">
+  <li>The Studio: build and tune your funnel in the browser</li>
+  <li>14 niche presets, from HVAC and plumbing to agencies and consulting</li>
+  <li>The AI prompt, tested on Claude, GPT and Gemini models</li>
+  <li><span data-live="on" hidden>A live link and QR code, or one file that is yours to keep and host anywhere</span><span data-live="off">One file that is yours to keep and host anywhere</span></li>
+  <li>Leads to your CRM (HighLevel, Zapier, Make) or to your email with no CRM</li>
+  <li>Extras: the HighLevel install guide, an agency pitch script and the playbook</li>
 </ul>
+<p class="need">What you need: a browser. An AI chatbot is optional.<span data-live="on" hidden> The live link is a free convenience we host, and the downloadable file is yours for good.</span></p>
+</div></section>
+
+<section class="sec" id="get"><div class="wrap">
+<div class="price-box">
+<div class="now">$1</div>
+<p class="once">One payment. Instant access.</p>
 <a class="btn cta" href="#get">Get the kit for $1</a>
 <span class="trust">One payment of $1. No subscription. Nothing else at checkout.</span>
-<span class="btn-note mid" id="ctaNote">Secure checkout</span>
+<span class="btn-note" id="ctaNote">Secure checkout</span>
 </div>
-
 <div class="why">
-<p><b>Why a dollar?</b> I would rather have you as a customer than a viewer. A dollar makes this a real transaction, which means I can email you when the kit gets better and you can email me back when it does not work. If it helps you, I may ask what you built with it.</p>
-<p style="margin-top:12px">If it is not useful, reply to your receipt and we refund the dollar. No form, no reason needed.</p>
+<p><b>Why a dollar?</b> It makes you a customer, not a viewer. I can email you when the kit gets better, and you can email me when something does not work.</p>
+<p><b>What happens after:</b> I email once to check how it is going, and later I ask for an honest review, good or bad. Reviewing is optional.</p>
+<p>Not useful? Reply to your receipt and we refund the dollar.</p>
 </div>
 </div></section>
 
-<section class="sec"><div class="wrap">
+<section class="sec soft"><div class="wrap">
 <h2 class="center">Questions</h2>
 <div class="faq">
-  <details open>
-    <summary>Does it work with my AI?</summary>
-    <p>Yes. The builder prompt was tested on Claude, GPT and Gemini models, and the Config Doctor checks whatever comes back before you publish. The math is built in, so the AI can never invent a price or break the numbers. No AI? The Studio walks you through it by hand and you end up at the same funnel.</p>
-  </details>
   <details>
-    <summary>Do I need a Mac?</summary>
-    <p>No. Any computer with a modern browser works: Mac, Windows or a Chromebook, with nothing to install. If you download the zip on Windows, right click it and choose Extract All first.</p>
-  </details>
-  <details>
-    <summary>Where do my leads go?</summary>
-    <p>You choose on the Publish tab: your CRM or automation tool (HighLevel, Zapier, Make or any webhook), your email with no CRM, or nowhere yet, so the page shows the price and your booking button only. The email option runs through a free third-party form-to-email service, so each lead's details pass through that service on the way to you. Either way, you send a test lead first and the Studio asks whether it arrived.</p>
-  </details>
-  <details>
-    <summary>Does it give the customer a fixed price?</summary>
-    <p>No, and that is on purpose. It gives a range, with a timeline and a short note on what drives the number. A fixed price sight unseen is a promise you have to break later. A range that is honest about what it does not know is the thing that survives the phone call.</p>
+    <summary>Which AI does it work with, and do I need one?</summary>
+    <p>Tested on Claude, GPT and Gemini models. You do not need one: the Studio lets you type your prices in by hand.</p>
   </details>
   <details>
     <summary>Do I need HighLevel?</summary>
-    <p>No. It is a single web page that works on any website. Host it anywhere, paste it into the site you already have, or open it straight off your desktop. A HighLevel install guide is included, because a lot of people reading this run on HighLevel.</p>
-  </details>
-  <details>
-    <summary>Is this a subscription, or is there more to pay at checkout?</summary>
-    <p>No, and no. One payment of $1 for the kit. There is nothing else on the checkout page and nothing recurring. If we ever build something bigger, it will be its own thing you decide about separately, never something that appears in this checkout.</p>
+    <p>No. It is one web page that works on any website, and a HighLevel install guide is included.</p>
   </details>
   <details>
     <summary>Can I use it for my clients?</summary>
-    <p>Yes. Build one per client, per niche, as many as you like. It is your copy of the kit.</p>
+    <p>Yes, build one per client, as many as you like. You may not resell the kit itself.</p>
   </details>
   <details>
-    <summary>What exactly do I download?</summary>
-    <p>Nothing, if you would rather not: the Studio opens in your browser from the delivery page. The zip is for an offline copy or for Claude Code, with the Studio, funnel template, presets, prompts, Claude Code skill, HighLevel guide, agency pitch and playbook.</p>
+    <summary>What do I need to get started?</summary>
+    <p>A browser. A booking link for the button at the end is a good idea, and you can add it later.</p>
   </details>
   <details>
-    <summary>What if I want a refund?</summary>
-    <p>Reply to the receipt email and say so. We refund the dollar and you keep the files.</p>
+    <summary>Is the price it shows a fixed quote?</summary>
+    <p>No, on purpose. It shows a range and a timeline, and the visitor books a call for the exact price.</p>
   </details>
 </div>
 </div></section>
@@ -358,13 +277,14 @@ footer a{color:var(--ind);text-decoration:none;font-weight:600}
 const CHECKOUT_URL = "";
 
 // YT_VIDEO_ID: the YouTube id of the walkthrough (the 11 characters after v=).
-// Empty until the video is published; the stage shows a placeholder instead.
+// Empty until the video is published; the hero shows the product images instead.
+// Once set, the video replaces those images on the dark card.
 const YT_VIDEO_ID = "";
 
 // LIVE_LINKS: the optional "Get my live link" feature (public link + QR code on a
-// SEPARATE static host, never this hostname). It ships switched OFF. Flip to true
-// ONLY after DEPLOY.md step 6 has deployed and verified the live-link host. While
-// false, every live-link or QR claim (data-live="on") stays hidden.
+// SEPARATE static host, never this hostname). Flip to true ONLY after DEPLOY.md
+// step 6 has deployed and verified the live-link host. While false, every
+// live-link or QR claim (data-live="on") stays hidden and data-live="off" shows.
 const LIVE_LINKS = true;
 
 document.querySelectorAll('[data-live]').forEach(function(el){
@@ -384,23 +304,12 @@ document.querySelectorAll('.cta').forEach(a=>{
   }
 });
 
-// The demo page is written by the kit build. If it is not published yet, soften the
-// demo buttons rather than sending a visitor to a 404. Same-origin HEAD, no tracking.
-if(location.protocol !== 'file:'){
-  fetch('./demo/', {method:'HEAD'}).then(function(r){
-    if(r.ok) return;
-    document.querySelectorAll('a[href="./demo/"]').forEach(function(a){
-      a.textContent = 'Demo opens with the video';
-      a.style.pointerEvents = 'none';
-      a.style.opacity = '.55';
-    });
-  }).catch(function(){ /* offline or blocked: leave the buttons alone */ });
-}
-
 if(YT_VIDEO_ID){
-  var box = document.getElementById('videobox');
-  if(box){
-    box.innerHTML = '';
+  var stage = document.getElementById('heroVisual');
+  if(stage){
+    stage.innerHTML = '';
+    var box = document.createElement('div');
+    box.className = 'videobox';
     var f = document.createElement('iframe');
     f.src = 'https://www.youtube.com/embed/' + YT_VIDEO_ID;
     f.title = 'The Estimate Funnel Kit walkthrough';
@@ -408,6 +317,7 @@ if(YT_VIDEO_ID){
     f.setAttribute('allowfullscreen','');
     f.loading = 'lazy';
     box.appendChild(f);
+    stage.appendChild(box);
   }
 }
 </script>

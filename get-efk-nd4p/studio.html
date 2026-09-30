@@ -4156,6 +4156,25 @@ function captureBaseline(){
 /* ------------------------------------------------------------------ *
  * Start
  * ------------------------------------------------------------------ */
+/* THE address bar preset rule. A ?preset= link (the thank-you page, the
+ * receipt email, the on-camera hook) loads that example ONLY when this browser
+ * holds no saved work, or the saved work is an untouched preset (nothing edited,
+ * nothing tested). Real saved work is never replaced: kept is true and the
+ * Studio shows a small note instead. Pure function, so test.mjs runs it. */
+function urlPresetPlan(qs, saved, presets, doctor){
+  var mp = /[?&]preset=([a-z0-9_-]+)/i.exec(qs || '');
+  if (!mp || !presets[mp[1]]) return { key: '', kept: false, asked: '' };
+  var asked = mp[1];
+  if (!saved || !saved.cfg) return { key: asked, kept: false, asked: asked };
+  var untouched = false;
+  try {
+    untouched = !saved.bookingTested && !saved.sanityPrint && !saved.leadVerified
+      && !!saved.preset && !!presets[saved.preset]
+      && JSON.stringify(saved.cfg) === JSON.stringify(doctor(JSON.parse(JSON.stringify(presets[saved.preset]))).config);
+  } catch(e){ untouched = false; }
+  if (untouched) return { key: asked, kept: false, asked: asked };
+  return { key: '', kept: true, asked: asked };
+}
 function boot(){
   var restored = load();
   if (!restored){
@@ -4164,19 +4183,25 @@ function boot(){
   }
   /* Two harmless address bar hooks, so a link can open the studio on a given
    * tab with a given niche already loaded: ?tab=knobs&preset=hvac
-   * Nothing a buyer types by accident, and no effect without them. */
+   * Nothing a buyer types by accident, and no effect without them.
+   * ?preset= NEVER overwrites saved work (see urlPresetPlan). */
   try {
     var qs = location.search;
-    var mp = /[?&]preset=([a-z0-9_-]+)/i.exec(qs);
-    if (mp && PRESETS[mp[1]]){
-      var dxp = EFK.doctor(JSON.parse(JSON.stringify(PRESETS[mp[1]])));
+    var savedRaw = null;
+    try { savedRaw = restored ? JSON.parse(localStorage.getItem(LS_KEY) || 'null') : null; } catch(e2){ savedRaw = null; }
+    var plan = urlPresetPlan(qs, savedRaw, PRESETS, EFK.doctor);
+    if (plan.key){
+      var dxp = EFK.doctor(JSON.parse(JSON.stringify(PRESETS[plan.key])));
       cfg = dxp.config;
-      activePreset = mp[1];
+      activePreset = plan.key;
       bookingTested = false;
     }
     var m = /[?&]tab=([a-z]+)/.exec(qs);
     if (m){
       for (var i=0;i<TABS.length;i++) if (TABS[i].id === m[1]) activeTab = m[1];
+    }
+    if (plan.kept){
+      notice(activeTab, 'info', '<b>Your saved work is still here.</b> This link opens the '+esc(nicheName(plan.asked))+' example, so we left your work exactly as it was. To load the example instead, press Export my work to keep a copy, then pick it on the Niche tab.');
     }
   } catch(e){}
   render();

@@ -36,8 +36,6 @@ h2{font-family:var(--head);font-weight:700;letter-spacing:-.02em;font-size:clamp
 .card p b,.card p strong{color:var(--ink)}
 .btn{display:block;width:100%;background:var(--grad);color:#fff;font-family:var(--head);font-weight:700;font-size:18px;border:0;border-radius:14px;padding:18px 24px;min-height:56px;cursor:pointer;text-decoration:none;text-align:center;box-shadow:0 10px 26px rgba(124,58,237,.24)}
 .btn:active{transform:translateY(1px)}
-.fallback{background:var(--bg-soft);border:1px solid var(--line);border-left:4px solid var(--vio);border-radius:10px;padding:16px 18px;margin-top:18px;font-size:15.5px;color:var(--muted)}
-.fallback b{color:var(--ink)}
 a{color:var(--ind)}
 ol.steps{list-style:none;counter-reset:qs;margin-top:6px}
 ol.steps li{counter-increment:qs;position:relative;padding:0 0 14px 36px;color:var(--muted);font-size:16px}
@@ -45,25 +43,31 @@ ol.steps li::before{content:counter(qs);position:absolute;left:0;top:1px;width:2
 ol.steps li b{color:var(--ink)}
 
 /* The one dark panel: the optional micro-form */
-.snap{background:linear-gradient(150deg,#191430,#2c2154 55%,#3b2a68);color:#d9d2f2;border-radius:22px;padding:26px 20px;margin-top:30px;box-shadow:0 30px 70px rgba(25,20,48,.3)}
+.snap{background:linear-gradient(150deg,#191430,#2c2154 55%,#3b2a68);color:#d9d2f2;border-radius:18px;padding:20px 18px;margin-top:26px;box-shadow:0 18px 44px rgba(25,20,48,.22);max-width:620px}
 .snap .stepnum{background:linear-gradient(90deg,#8b7bff,#f0abfc);-webkit-background-clip:text;background-clip:text;color:transparent}
-.snap h2{color:#fff}
-.snap p{color:#c9c2e4;font-size:16px;margin-bottom:14px}
-.snap label{display:block;color:#fff;font-family:var(--head);font-weight:700;font-size:14px;margin:14px 0 6px}
-.snap input,.snap textarea{width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-radius:11px;padding:13px 14px;color:#fff;font-family:var(--body);font-size:16px}
+.snap h2{color:#fff;font-size:19px;margin-bottom:4px}
+.snap p{color:#c9c2e4;font-size:14.5px;margin-bottom:6px}
+.snap label{display:block;color:#fff;font-family:var(--head);font-weight:700;font-size:13px;margin:12px 0 5px}
+.snap input,.snap textarea{width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-radius:10px;padding:10px 12px;color:#fff;font-family:var(--body);font-size:16px}
 .snap input::placeholder,.snap textarea::placeholder{color:#9a91bd}
-.snap textarea{min-height:82px;resize:vertical}
-.snap button{margin-top:16px}
-.snap .fineprint{color:#9a91bd;font-size:14px;margin:12px 0 0}
+.snap textarea{min-height:64px;resize:vertical}
+.snap button{margin-top:12px}
+.snap .fineprint{color:#9a91bd;font-size:13px;margin:10px 0 0}
 #formMsg{display:none;margin-top:14px;background:rgba(47,227,154,.12);border:1px solid rgba(47,227,154,.3);border-radius:11px;padding:13px 14px;color:#d9f5e8;font-size:15.5px}
-.tail{color:var(--muted);margin-top:32px;font-size:16px}
+.tail{color:var(--muted);margin-top:28px;font-size:16px}
+.tail.small{margin-top:10px;font-size:14px;color:var(--muted2)}
+.card.first{padding-top:26px}
+.card.first ol.steps{margin-top:22px}
+.card.first ol.steps li{font-size:16.5px}
+.quiet{font-size:14.5px !important;color:var(--muted2) !important;margin-top:6px;border-top:1px solid var(--line);padding-top:14px}
+.snap .btn.sm2{display:inline-block;width:auto;font-size:15px;padding:11px 20px;min-height:0;box-shadow:none;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22)}
 footer{border-top:1px solid var(--line);padding:26px 20px 44px;text-align:center;color:var(--muted2);font-size:13.5px}
 footer a{color:var(--ind);text-decoration:none;font-weight:600}
 @media(min-width:760px){
   .nav-in{padding:14px 24px}
   main{padding:52px 24px 88px}
   .card{padding:32px 30px}
-  .snap{padding:34px 32px}
+  .snap{padding:22px 26px}
   .btn{display:inline-block;width:auto;padding:18px 38px}
   .btn.full{display:block;width:100%}
 }
@@ -73,45 +77,35 @@ footer a{color:var(--ind);text-decoration:none;font-weight:600}
 <nav><div class="nav-in"><span class="wordmark">Smarter<b>Flow</b></span></div></nav>
 <main>
 <span class="pill">Payment received</span>
-<h1>You're in. Here is the kit.</h1>
-<p class="sub">Open it now. The receipt email carries the same link, so you can close this tab whenever you like.</p>
+<h1>You're in. Start with the example from the video.</h1>
+<p class="sub">One click and a working quote funnel is on your screen, ready to make yours.</p>
 
-<div class="card">
-<div class="stepnum">Your download</div>
-<h2>The Estimate Funnel Kit</h2>
-<p style="margin-bottom:18px">The Studio opens straight in your browser, nothing to install, on a Mac, on Windows or on a Chromebook. The zip for an offline copy (or for Claude Code) is on the same page.</p>
-<a class="btn full" id="deliveryBtn" href="#">Open the kit</a>
-<div class="fallback"><b>Bookmark that page.</b> It is your copy, it stays up, and it is where updates land. If the button does not work, the same link is in your receipt email from jonathan@gosmarterflow.com.</div>
-</div>
-
-<div class="card">
-<div class="stepnum">Quick start</div>
-<h2>Four steps to a working funnel</h2>
+<div class="card first">
+<a class="btn full" id="exampleBtn" href="./get-efk-nd4p/studio.html?preset=hvac">Open the HVAC example</a>
 <ol class="steps">
-  <li><b>Open the Studio, pick your niche and see the funnel working.</b> It loads example services, example questions and example prices for that trade. Every example number is labeled as an example.</li>
-  <li><b>Put your real prices in, or let your AI do it.</b> A low and a high per service. The "Let my AI fill this in" button copies a prompt you paste into Claude, ChatGPT, Gemini or anything else, and you paste the answer back.</li>
-  <li><b>Choose where leads go and send yourself a test lead.</b> Your CRM, your email inbox with no CRM needed, or nowhere yet. The Studio asks whether the test lead arrived before you go live.</li>
-  <li><b>Publish.</b> The Publish tab walks you through putting the page live, and a HighLevel install guide is included.</li>
+  <li>Click through the preview on the right as if you were a customer.</li>
+  <li>Swap in your niche and your prices, or paste your price list into your AI with the included prompt.</li>
+  <li>On the Publish tab, choose where leads go, send yourself a test lead and get your link.</li>
 </ol>
+<p class="quiet"><a id="deliveryLink" href="./get-efk-nd4p/">Your kit page has the download, the guides and everything else</a>. The same links are in your receipt email.</p>
 </div>
 
 <div class="snap">
-<div class="stepnum">Optional, 20 seconds</div>
 <h2>What are you going to build with it?</h2>
-<p>Not a survey. I read these, and they decide which presets and which install guides get written next. Skip it if you would rather just build.</p>
+<p>Optional, 20 seconds. The answers decide which presets and install guides get written next.</p>
 <form id="buildForm" autocomplete="off">
   <label for="niche">Your niche or trade</label>
   <input id="niche" name="niche" type="text" maxlength="80" placeholder="HVAC, roofing, web design, bookkeeping...">
   <label for="building">What you are building, in one line</label>
   <textarea id="building" name="building" maxlength="240" placeholder="An instant AC install range for my own company's site."></textarea>
-  <button class="btn full" type="submit">Send it</button>
+  <button class="btn sm2" type="submit">Send it</button>
 </form>
 <div id="formMsg"></div>
 <p class="fineprint">One line is plenty. No follow-up sequence hangs off this.</p>
 </div>
 
-<p class="tail">Stuck on anything, reply to your receipt email. I read every reply.</p>
-<p class="tail" style="margin-top:14px">Next video: the instant AI demo. Once a visitor has an instant estimate, the thing they want next is to see it working.</p>
+<p class="tail">Stuck? Reply to your receipt email and you get an answer, usually within one business day.</p>
+<p class="tail small">Next video: the instant AI demo. Once a visitor has an instant estimate, the thing they want next is to see it working.</p>
 </main>
 <footer>&copy; Smarter Flow &middot; <a href="https://www.gosmarterflow.com">gosmarterflow.com</a> &middot; Questions? jonathan@gosmarterflow.com</footer>
 
@@ -127,7 +121,11 @@ const DELIVERY_URL = "./get-efk-nd4p/";
 // this browser only, and nothing is lost that was ever promised to them.
 const FORM_WEBHOOK_URL = "";
 
-document.getElementById('deliveryBtn').href = DELIVERY_URL;
+// The first win: the Studio with the HVAC example from the video loaded. The
+// Studio never replaces saved work with this example (urlPresetPlan in the kit),
+// so a second click, or the receipt email link, is always safe.
+document.getElementById('exampleBtn').href = DELIVERY_URL + 'studio.html?preset=hvac';
+document.getElementById('deliveryLink').href = DELIVERY_URL;
 
 document.getElementById('buildForm').addEventListener('submit', function(e){
   e.preventDefault();

@@ -38,6 +38,7 @@ h3{font-family:var(--head);font-weight:700;letter-spacing:-.02em;font-size:17px;
 .btn{display:block;width:100%;background:var(--grad);color:#fff;font-family:var(--head);font-weight:700;font-size:18px;border:0;border-radius:14px;padding:18px 24px;min-height:56px;cursor:pointer;text-decoration:none;text-align:center;box-shadow:0 10px 26px rgba(124,58,237,.24)}
 .btn:active{transform:translateY(1px)}
 .btn.ghost{background:#fff;color:var(--ind);border:1.5px solid var(--line);box-shadow:none;font-size:16px;padding:15px 24px;min-height:0;margin-top:10px}
+.links{margin-top:12px;font-size:15px;color:var(--muted)}
 .meta{display:block;margin-top:10px;font-size:14px;color:var(--muted);text-align:center}
 a{color:var(--ind)}
 ol.steps{list-style:none;counter-reset:qs;margin-top:6px}
@@ -73,8 +74,10 @@ footer a{color:var(--ind);text-decoration:none;font-weight:600}
 <div class="stepnum">Option 1, start here</div>
 <h2>Open the Studio now</h2>
 <p style="margin-bottom:18px">Nothing to install. It runs in your browser on a Mac, on Windows or on a Chromebook. Your work is saved in this browser, and nothing leaves it until you send a test lead or publish.</p>
-<a class="btn" id="studioBtn" href="./studio.html">Open the Studio</a>
+<a class="btn" id="studioBtn" href="./studio.html?preset=hvac">Open the HVAC example</a>
 <a class="btn ghost" id="funnelBtn" href="./funnel.html">Preview the lead-facing funnel</a>
+<p class="links"><a id="blankLink" href="./studio.html">Start from a blank niche</a></p>
+<p class="links">Want to see a finished one first? <a href="../demo/">Try the demo</a></p>
 </div>
 
 <div class="card">
@@ -110,7 +113,7 @@ footer a{color:var(--ind);text-decoration:none;font-weight:600}
   <div class="path">
     <span class="tag">Path B</span>
     <h3>Any chatbot</h3>
-    <p>Open the Studio, hit "Let my AI fill this in", paste the prompt into Claude, ChatGPT, Gemini or anything else, and paste the answer back. The prompt was tested on Claude, GPT and Gemini models. The Config Doctor repairs the answer and shows you what changed. <b>For everyone else.</b></p>
+    <p>Open the Studio, hit "Let my AI fill this in", paste the prompt into Claude, ChatGPT, Gemini or anything else, and paste the answer back. The prompt was tested on Claude, GPT and Gemini models. The Config Doctor repairs the answer and shows you what changed. The kit does the math from your settings. Check the prices your AI entered before you publish. <b>For everyone else.</b></p>
   </div>
   <div class="path">
     <span class="tag">Path C</span>
@@ -125,7 +128,7 @@ footer a{color:var(--ind);text-decoration:none;font-weight:600}
 <div class="card">
 <div class="stepnum">If something breaks</div>
 <h2>Reply to your receipt</h2>
-<p>Reply to the receipt email from jonathan@gosmarterflow.com and tell me what happened. I read every reply. Include the niche you picked and what the screen said, and I can usually tell you in one line.</p>
+<p>Reply to the receipt email from jonathan@gosmarterflow.com and say what happened. You get an answer, usually within one business day. Include the niche you picked and what the screen said, and the fix is often one line.</p>
 </div>
 
 <div class="missing" id="missingNote">
@@ -178,7 +181,7 @@ if(location.protocol !== 'file:'){ // local preview skips every probe
     }).catch(function(){ /* offline or blocked: leave the button alone */ });
   })(0);
 
-  ['studioBtn|./studio.html', 'funnelBtn|./funnel.html', 'startBtn|./START-HERE.html']
+  ['studioBtn|./studio.html', 'blankLink|./studio.html', 'funnelBtn|./funnel.html', 'startBtn|./START-HERE.html']
   .forEach(function(pair){
     var parts = pair.split('|'), el = document.getElementById(parts[0]), url = parts[1];
     fetch(url, {method:'HEAD'}).then(function(r){
