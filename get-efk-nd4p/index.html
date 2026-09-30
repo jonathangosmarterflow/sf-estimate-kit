@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Your Estimate Funnel Kit | Smarter Flow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Mobile-first. Base styles are the phone. Desktop is added at min-width. */
+:root{
+  --vio:#7c3aed; --ind:#4f46e5; --pk:#db2777; --pk-soft:#c4489f;
+  --ink:#191627; --muted:#5f5a75; --muted2:#7d7793;
+  --bg:#ffffff; --bg-soft:#faf8ff; --line:#eae6f6;
+  --ground:radial-gradient(1100px 680px at 74% -14%,#f3edff 0%,#ffffff 60%);
+  --grad:linear-gradient(100deg,var(--ind),var(--vio) 60%,var(--pk-soft));
+  --head:'Sora',system-ui,sans-serif; --body:'Plus Jakarta Sans',system-ui,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{font-family:var(--body);color:var(--ink);background:var(--bg);background-image:var(--ground);background-attachment:fixed;line-height:1.6;font-size:17px}
+.wordmark{font-family:var(--head);font-weight:800;letter-spacing:-.03em;color:var(--ink);text-decoration:none;font-size:20px}
+.wordmark b{background:linear-gradient(100deg,var(--ind),var(--pk));-webkit-background-clip:text;background-clip:text;color:transparent}
+nav{border-bottom:1px solid var(--line);background:rgba(255,255,255,.93)}
+.nav-in{max-width:860px;margin:0 auto;padding:12px 20px}
+main{max-width:860px;margin:0 auto;padding:34px 20px 70px}
+.pill{display:inline-block;background:var(--grad);color:#fff;font-family:var(--head);font-weight:700;font-size:11px;letter-spacing:.06em;text-transform:uppercase;border-radius:999px;padding:6px 14px;margin-bottom:16px}
+h1{font-family:var(--head);font-weight:800;letter-spacing:-.03em;font-size:clamp(28px,7.5vw,42px);line-height:1.1;margin-bottom:12px}
+.sub{color:var(--muted);font-size:17px;margin-bottom:28px}
+h2{font-family:var(--head);font-weight:700;letter-spacing:-.02em;font-size:clamp(21px,5.5vw,25px);margin:0 0 10px}
+h3{font-family:var(--head);font-weight:700;letter-spacing:-.02em;font-size:17px;margin-bottom:6px}
+.stepnum{display:inline-block;font-family:var(--head);font-weight:800;font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:8px}
+.card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:24px 20px;margin-bottom:20px;box-shadow:0 16px 50px rgba(124,58,237,.08)}
+.card p{color:var(--muted);font-size:16.5px}
+.card p b,.card p strong{color:var(--ink)}
+.btn{display:block;width:100%;background:var(--grad);color:#fff;font-family:var(--head);font-weight:700;font-size:18px;border:0;border-radius:14px;padding:18px 24px;min-height:56px;cursor:pointer;text-decoration:none;text-align:center;box-shadow:0 10px 26px rgba(124,58,237,.24)}
+.btn:active{transform:translateY(1px)}
+.btn.ghost{background:#fff;color:var(--ind);border:1.5px solid var(--line);box-shadow:none;font-size:16px;padding:15px 24px;min-height:0;margin-top:10px}
+.meta{display:block;margin-top:10px;font-size:14px;color:var(--muted);text-align:center}
+a{color:var(--ind)}
+ol.steps{list-style:none;counter-reset:qs;margin-top:6px}
+ol.steps li{counter-increment:qs;position:relative;padding:0 0 14px 36px;color:var(--muted);font-size:16px}
+ol.steps li::before{content:counter(qs);position:absolute;left:0;top:1px;width:23px;height:23px;border-radius:7px;background:var(--bg-soft);border:1px solid var(--line);color:var(--vio);font-family:var(--head);font-weight:700;font-size:12.5px;display:flex;align-items:center;justify-content:center}
+ol.steps li b{color:var(--ink)}
+.paths{display:grid;grid-template-columns:1fr;gap:16px;margin-top:6px}
+.path{background:var(--bg-soft);border:1px solid var(--line);border-radius:14px;padding:18px}
+.path .tag{font-family:var(--head);font-weight:800;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--vio);margin-bottom:6px;display:block}
+.path p{font-size:15.5px;color:var(--muted)}
+.path p b{color:var(--ink)}
+.note{background:#fff;border:1px solid var(--line);border-left:4px solid var(--vio);border-radius:10px;padding:16px 18px;margin-top:18px;font-size:15.5px;color:var(--muted)}
+.note b{color:var(--ink)}
+.missing{display:none;background:#fff8e6;border:1px solid #f0d9a0;border-radius:10px;padding:14px 16px;margin-bottom:18px;font-size:15px;color:#7a5a12}
+footer{border-top:1px solid var(--line);padding:26px 20px 44px;text-align:center;color:var(--muted2);font-size:13.5px}
+footer a{color:var(--ind);text-decoration:none;font-weight:600}
+@media(min-width:760px){
+  .nav-in{padding:14px 24px}
+  main{padding:52px 24px 88px}
+  .card{padding:32px 30px}
+  .paths{grid-template-columns:repeat(3,1fr)}
+}
+</style>
+</head>
+<body>
+<nav><div class="nav-in"><span class="wordmark">Smarter<b>Flow</b></span></div></nav>
+<main>
+<span class="pill" id="verPill">Your copy &middot; v1.1</span>
+<h1>The Estimate Funnel Kit</h1>
+<p class="sub">Bookmark this page. It is yours, it stays up, and updates land here. Nothing expires.</p>
+
+<div class="card">
+<div class="stepnum">Option 1, start here</div>
+<h2>Open the Studio now</h2>
+<p style="margin-bottom:18px">Nothing to install. It runs in your browser on a Mac, on Windows or on a Chromebook. Your work is saved in this browser, and nothing leaves it until you send a test lead or publish.</p>
+<a class="btn" id="studioBtn" href="./studio.html">Open the Studio</a>
+<a class="btn ghost" id="funnelBtn" href="./funnel.html">Preview the lead-facing funnel</a>
+</div>
+
+<div class="card">
+<div class="stepnum">Option 2</div>
+<h2>Download the kit</h2>
+<p style="margin-bottom:14px">One zip. Keep your own offline copy, or open the folder in Claude Code. Unzip it and open <b>START-HERE.html</b>.</p>
+<p style="margin-bottom:18px"><b>On Windows:</b> right click the zip and choose <b>Extract All</b> before opening anything.</p>
+<a class="btn ghost" id="dlBtn" href="#">Download the zip</a>
+<span class="meta" id="dlMeta">estimate-funnel-kit-v1.1.zip</span>
+<a class="btn ghost" id="startBtn" href="./START-HERE.html">Read START-HERE first</a>
+</div>
+
+<div class="card">
+<div class="stepnum">Quick start</div>
+<h2>Four steps to a working funnel</h2>
+<ol class="steps">
+  <li><b>Pick your niche and see the funnel working.</b> It loads example services, questions and prices for that trade. Every example number is labeled, and Publish stays locked until you have confirmed or replaced them.</li>
+  <li><b>Put your real prices in, or let your AI do it.</b> A low and a high per service. The "Let my AI fill this in" button copies a prompt for Claude, ChatGPT, Gemini or anything else, and the Config Doctor checks the answer you paste back.</li>
+  <li><b>Choose where leads go and send yourself a test lead.</b> Your CRM or automation tool, your email inbox with no CRM, or nowhere yet (the page shows the price and your booking button only). The Studio then asks whether the test lead arrived, so you never go live with leads going nowhere.</li>
+  <li><b>Publish.</b> <span data-live="off">Download one file with your settings baked in and put it on your site, or any host.</span><span data-live="on" hidden>Click "Get my live link" for a working public link and a QR code in seconds, with no hosting (it carries a small "Built with the Estimate Funnel Kit" footer). Or download one file with your settings baked in and host it yourself.</span></li>
+</ol>
+</div>
+
+<div class="card">
+<div class="stepnum">Three ways in</div>
+<h2>Pick the path that matches your setup</h2>
+<div class="paths">
+  <div class="path">
+    <span class="tag">Path A</span>
+    <h3>Claude Code does it</h3>
+    <p>Unzip the kit, open the folder in Claude Code and say "build my estimate funnel". The skill ships inside the folder, so there is nothing to install. It interviews you, reads what you give it, writes the config and builds the funnel file. <b>For anyone already working in Claude Code.</b></p>
+  </div>
+  <div class="path">
+    <span class="tag">Path B</span>
+    <h3>Any chatbot</h3>
+    <p>Open the Studio, hit "Let my AI fill this in", paste the prompt into Claude, ChatGPT, Gemini or anything else, and paste the answer back. The prompt was tested on Claude, GPT and Gemini models. The Config Doctor repairs the answer and shows you what changed. <b>For everyone else.</b></p>
+  </div>
+  <div class="path">
+    <span class="tag">Path C</span>
+    <h3>No AI at all</h3>
+    <p>Pick a preset, type your prices over the examples, drag the knobs, publish. Nothing about the kit requires a model. <b>Often the fastest if you already know your numbers.</b></p>
+  </div>
+</div>
+<div class="note"><b>Installing it in HighLevel?</b> Start with the quick install: about 5 minutes and zero custom fields. Each lead arrives as a contact with one note and one tag. The full field mapping is optional, for later. Both are in <b>highlevel/INSTALL.md</b> in the zip.</div>
+<div class="note"><b>Building these for clients?</b> <b>AGENCY-PITCH.md</b> in the zip covers how to offer an instant quote page to a local business: the email, the follow-up, a 60-second script and what to include in the offer.</div>
+</div>
+
+<div class="card">
+<div class="stepnum">If something breaks</div>
+<h2>Reply to your receipt</h2>
+<p>Reply to the receipt email from jonathan@gosmarterflow.com and tell me what happened. I read every reply. Include the niche you picked and what the screen said, and I can usually tell you in one line.</p>
+</div>
+
+<div class="missing" id="missingNote">
+Some files on this page have not been published yet. The download and the hosted Studio go live with the kit release.
+</div>
+
+</main>
+<footer>&copy; Smarter Flow &middot; <a href="https://www.gosmarterflow.com">gosmarterflow.com</a> &middot; jonathan@gosmarterflow.com</footer>
+
+<script>
+// ---------------------------------------------------------------------------
+// LIVE_LINKS: the optional "Get my live link" feature (public link + QR code on a
+// SEPARATE static host). It ships switched OFF. Flip to true ONLY after DEPLOY.md
+// step 6 has deployed and verified the live-link host AND the synced Studio shows
+// the "Get my live link" card. While false, every sentence about the live link or
+// the QR code stays hidden (markup: data-live="on" is hidden, data-live="off" shows).
+// ---------------------------------------------------------------------------
+const LIVE_LINKS = true;
+
+document.querySelectorAll('[data-live]').forEach(function(el){
+  var wantOn = el.getAttribute('data-live') === 'on';
+  el.hidden = (wantOn !== LIVE_LINKS);
+});
+
+// ---------------------------------------------------------------------------
+// ZIP_CANDIDATES: sync-kit.sh copies the v1.1 zip into this folder (or, if that
+// is missing, the newest zip in dist/, and says so). The page links the FIRST
+// candidate that answers a HEAD request, and labels it with its real file name.
+// The v1.0 zip stays on disk as a fallback only.
+// ---------------------------------------------------------------------------
+const ZIP_CANDIDATES = ["./estimate-funnel-kit-v1.1.zip", "./estimate-funnel-kit-v1.0.zip"];
+
+var missing = document.getElementById('missingNote');
+var dl = document.getElementById('dlBtn');
+var dlMeta = document.getElementById('dlMeta');
+function useZip(url){
+  dl.href = url;
+  dl.setAttribute('download', '');
+  dlMeta.textContent = url.replace('./', '');
+}
+useZip(ZIP_CANDIDATES[0]);
+
+// Graceful degrade: if sync-kit.sh has not copied a file in yet, hide its button
+// rather than hand the buyer a 404. Checked with HEAD requests, same origin only.
+if(location.protocol !== 'file:'){ // local preview skips every probe
+  (function probeZip(i){
+    if(i >= ZIP_CANDIDATES.length){ dl.style.display = 'none'; dlMeta.style.display = 'none'; missing.style.display = 'block'; return; }
+    fetch(ZIP_CANDIDATES[i], {method:'HEAD'}).then(function(r){
+      if(r.ok){ useZip(ZIP_CANDIDATES[i]); } else { probeZip(i + 1); }
+    }).catch(function(){ /* offline or blocked: leave the button alone */ });
+  })(0);
+
+  ['studioBtn|./studio.html', 'funnelBtn|./funnel.html', 'startBtn|./START-HERE.html']
+  .forEach(function(pair){
+    var parts = pair.split('|'), el = document.getElementById(parts[0]), url = parts[1];
+    fetch(url, {method:'HEAD'}).then(function(r){
+      if(!r.ok){ el.style.display = 'none'; missing.style.display = 'block'; }
+    }).catch(function(){ /* offline or blocked: leave the button alone */ });
+  });
+}
+</script>
+</body>
+</html>

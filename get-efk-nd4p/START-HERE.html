@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Estimate Funnel Kit</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --panel:#ffffff; --ink:#0f172a; --muted:#5b6575;
+    --line:#e3e7ee; --brand:#1d4ed8; --brand-ink:#ffffff;
+    --chip:#eef2ff; --chip-ink:#1e3a8a; --shadow:0 1px 2px rgba(15,23,42,.05),0 12px 32px rgba(15,23,42,.07);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0b1020; --panel:#121a2e; --ink:#eef2f8; --muted:#9aa7bd;
+      --line:#233049; --brand:#5b8cff; --brand-ink:#08122b;
+      --chip:#1b2947; --chip-ink:#b9ccff; --shadow:0 1px 2px rgba(0,0,0,.4),0 14px 36px rgba(0,0,0,.45);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0b1020; --panel:#121a2e; --ink:#eef2f8; --muted:#9aa7bd;
+    --line:#233049; --brand:#5b8cff; --brand-ink:#08122b;
+    --chip:#1b2947; --chip-ink:#b9ccff; --shadow:0 1px 2px rgba(0,0,0,.4),0 14px 36px rgba(0,0,0,.45);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--ink);
+    font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:44px 16px 64px}
+  .eyebrow{
+    display:inline-block;background:var(--chip);color:var(--chip-ink);
+    font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+    padding:6px 11px;border-radius:999px;margin-bottom:14px
+  }
+  h1{font-size:clamp(28px,5vw,40px);line-height:1.12;margin:0 0 10px;letter-spacing:-.02em}
+  .lede{color:var(--muted);font-size:clamp(16px,2.2vw,18px);max-width:62ch;margin:0}
+  h2{font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:38px 0 14px;font-weight:700}
+  .hero{
+    margin-top:26px;background:var(--panel);border:2px solid var(--brand);border-radius:18px;
+    padding:26px 24px;box-shadow:var(--shadow);display:flex;gap:24px;align-items:center;flex-wrap:wrap
+  }
+  .hero .txt{flex:1;min-width:260px}
+  .hero h3{margin:0 0 6px;font-size:22px;letter-spacing:-.01em}
+  .hero p{margin:0;color:var(--muted)}
+  .btn{
+    display:inline-block;text-align:center;text-decoration:none;font-weight:700;
+    background:var(--brand);color:var(--brand-ink);padding:13px 22px;border-radius:11px;
+    border:1px solid transparent;font-size:16px
+  }
+  .btn.ghost{background:transparent;color:var(--ink);border-color:var(--line);font-weight:600;font-size:15px;padding:10px 16px}
+  .btn:hover{filter:brightness(1.07)}
+  .works{margin:14px 0 0;color:var(--muted);font-size:14.5px}
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media (max-width:760px){.cards{grid-template-columns:1fr}}
+  .card{
+    background:var(--panel);border:1px solid var(--line);border-radius:16px;
+    padding:20px 20px 18px;box-shadow:var(--shadow);display:flex;flex-direction:column
+  }
+  .tag{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:28px;height:28px;border-radius:8px;background:var(--chip);color:var(--chip-ink);
+    font-weight:800;font-size:14px;margin-bottom:10px
+  }
+  .card h3{margin:0 0 4px;font-size:18px;letter-spacing:-.01em}
+  .who{color:var(--muted);font-size:14px;margin:0 0 12px}
+  ol{margin:0 0 14px;padding-left:20px;font-size:15px}
+  ol li{margin-bottom:7px}
+  code{
+    background:var(--chip);color:var(--chip-ink);padding:2px 6px;border-radius:5px;
+    font:13px/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;word-break:break-word
+  }
+  .spacer{flex:1}
+  .files{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:6px 22px;box-shadow:var(--shadow)}
+  .row{display:flex;gap:16px;padding:11px 0;border-bottom:1px solid var(--line);align-items:baseline;flex-wrap:wrap}
+  .row:last-child{border-bottom:0}
+  .row a{color:var(--brand);font-weight:700;text-decoration:none;min-width:210px}
+  .row a:hover{text-decoration:underline}
+  .row span{color:var(--muted);font-size:14.5px;flex:1;min-width:200px}
+  .note{
+    margin-top:26px;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--brand);
+    border-radius:12px;padding:16px 20px;color:var(--muted);font-size:15px
+  }
+  .note strong{color:var(--ink)}
+  footer{margin-top:34px;color:var(--muted);font-size:13.5px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow">Estimate Funnel Kit v1.1</div>
+  <h1>Your instant estimate funnel, working in about a minute.</h1>
+  <p class="lede">A page where your customer answers a few questions and sees a real price range, then books a call. For your business or a client's, in any niche.</p>
+
+  <div class="hero">
+    <div class="txt">
+      <h3>Fastest: open the Studio, pick your niche, see your funnel working in about a minute.</h3>
+      <p>No AI needed, nothing to install. Then put in your own prices and publish from the last tab.</p>
+    </div>
+    <a class="btn" href="studio.html">Open the Studio</a>
+  </div>
+  <p class="works">Works on Mac, Windows and Chromebook, in any modern browser.</p>
+
+  <h2>Want your AI to fill in your prices?</h2>
+  <div class="cards">
+
+    <div class="card">
+      <div class="tag">A</div>
+      <h3>Claude Code</h3>
+      <p class="who">Claude reads your notes, asks a few questions and writes the files.</p>
+      <ol>
+        <li>Open this folder in Claude Code (the terminal, the VS Code extension or the desktop app's Code tab). Nothing to install, the skill is already in the folder.</li>
+        <li>Say: <strong>build my estimate funnel</strong></li>
+        <li>Open the <code>my-funnel.html</code> it makes.</li>
+      </ol>
+      <p class="who">Only Claude Code can write the files for you. Any other chat hands you settings to paste into the Studio, which is path B.</p>
+      <div class="spacer"></div>
+      <a class="btn ghost" href="claude-skill/INSTALL.md">Step by step</a>
+    </div>
+
+    <div class="card">
+      <div class="tag">B</div>
+      <h3>Any chatbot</h3>
+      <p class="who">ChatGPT, Gemini, Claude on the web, Copilot, anything.</p>
+      <ol>
+        <li>Copy all of <code>prompts/BUILDER-PROMPT.md</code> into your AI chat.</li>
+        <li>Answer its questions. It hands you one block of settings.</li>
+        <li>In the Studio, stay on tab 1 and paste it under "Paste your AI answer here".</li>
+      </ol>
+      <div class="spacer"></div>
+      <a class="btn ghost" href="prompts/BUILDER-PROMPT.md">Open the prompt</a>
+    </div>
+
+  </div>
+
+  <h2>Everything in this kit</h2>
+  <div class="files">
+    <div class="row"><a href="studio.html">studio.html</a><span>The main tool. Niche, your business, prices, knobs, train, publish.</span></div>
+    <div class="row"><a href="funnel.html">funnel.html</a><span>The template your customers will see. The Studio fills it in for you.</span></div>
+    <div class="row"><a href="PLAYBOOK.md">PLAYBOOK.md</a><span>12 lessons from running a live estimate funnel. Read this before you go live.</span></div>
+    <div class="row"><a href="highlevel/INSTALL.md">highlevel/INSTALL.md</a><span>Put it in HighLevel and catch the lead. A five minute quick install, then the full one.</span></div>
+    <div class="row"><a href="AGENCY-PITCH.md">AGENCY-PITCH.md</a><span>For agencies and freelancers: how to offer an instant quote page to a local client.</span></div>
+    <div class="row"><a href="prompts/BUILDER-PROMPT.md">prompts/BUILDER-PROMPT.md</a><span>Paste into any AI. It builds your settings.</span></div>
+    <div class="row"><a href="prompts/CALIBRATE-PROMPT.md">prompts/CALIBRATE-PROMPT.md</a><span>Turns messy past invoices into clean training rows.</span></div>
+    <div class="row"><a href="prompts/REVIEW-MY-FUNNEL-PROMPT.md">prompts/REVIEW-MY-FUNNEL-PROMPT.md</a><span>Has an AI play three customers and report what is broken.</span></div>
+    <div class="row"><a href="claude-skill/INSTALL.md">claude-skill/INSTALL.md</a><span>The Claude Code path, on Mac and Windows, with no commands.</span></div>
+    <div class="row"><a href="NICHE-IDEAS.md">NICHE-IDEAS.md</a><span>40 niches this works for, and what each one's funnel asks.</span></div>
+    <div class="row"><a href="CHANGELOG.md">CHANGELOG.md</a><span>What changed in this version, and why.</span></div>
+    <div class="row"><a href="README.md">README.md</a><span>What every file is, in one page.</span></div>
+    <div class="row"><a href="LICENSE.txt">LICENSE.txt</a><span>Use it for your business and your clients' businesses.</span></div>
+  </div>
+
+  <div class="note">
+    <strong>Stuck?</strong> Reply to your receipt email and tell us where you got stuck. Real answers, from the people who built it.
+  </div>
+
+  <footer>Estimate Funnel Kit v1.1 &middot; built by Smarter Flow</footer>
+
+</div>
+<!--EFK_ZIPGUARD_START-->
+<script>
+/* Estimate Funnel Kit - zip preview guard (v1.1). One source, inlined by build.mjs
+ * into START-HERE.html, studio.html and funnel.html. On Windows, double clicking a
+ * file inside a zip opens a temporary copy, and nothing next to it works. This
+ * spots that case and says so, once, in plain words. Hosted https pages and
+ * normal folders never trigger it. */
+(function () {
+  function efkLooksLikeZipPreview(href) {
+    var s = String(href || '');
+    if (!/^file:/i.test(s)) return false;
+    var p = s;
+    try { p = decodeURIComponent(s); } catch (e) { /* keep it raw */ }
+    p = p.replace(/\\/g, '/').toLowerCase();
+    if (/\.zip\//.test(p)) return true;
+    if (/\/appdata\/local\/temp\//.test(p)) return true;
+    if (/\/temp\d+_[^\/]*\//.test(p)) return true;
+    if (/\/7zo[0-9a-z]*\//.test(p)) return true;
+    if (/\/rar\$ex[^\/]*\//.test(p)) return true;
+    return false;
+  }
+  if (typeof window === 'undefined' || typeof document === 'undefined') {
+    if (typeof globalThis !== 'undefined') globalThis.efkLooksLikeZipPreview = efkLooksLikeZipPreview;
+    return;
+  }
+  window.efkLooksLikeZipPreview = efkLooksLikeZipPreview;
+  var here = '';
+  try { here = location.href; } catch (e) { return; }
+  if (!efkLooksLikeZipPreview(here)) return;
+  try { if (sessionStorage.getItem('efk-zip-ok') === '1') return; } catch (e) { /* storage blocked */ }
+  function show() {
+    if (document.getElementById('efk-zip-guard')) return;
+    var o = document.createElement('div');
+    o.id = 'efk-zip-guard';
+    o.setAttribute('role', 'alertdialog');
+    o.setAttribute('aria-label', 'Extract the kit first');
+    o.style.cssText = 'position:fixed;inset:0;z-index:2147483000;background:#f6f7f9;display:flex;align-items:center;justify-content:center;padding:16px;font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:#0f172a';
+    var c = document.createElement('div');
+    c.style.cssText = 'max-width:560px;width:100%;background:#fff;border:1px solid #e3e7ee;border-left:5px solid #d97706;border-radius:14px;padding:26px 24px;box-shadow:0 12px 32px rgba(15,23,42,.08)';
+    var h = document.createElement('h1');
+    h.style.cssText = 'font-size:22px;line-height:1.25;margin:0 0 10px;letter-spacing:-.01em';
+    h.textContent = 'One step first: this kit is still inside the zip.';
+    var p = document.createElement('p');
+    p.style.cssText = 'margin:0 0 18px;color:#334155';
+    p.textContent = 'Close this tab, right click the zip, choose Extract All, then open START-HERE.html from the new folder.';
+    var a = document.createElement('a');
+    a.href = '#';
+    a.textContent = 'Continue anyway';
+    a.style.cssText = 'font-size:14px;color:#64748b';
+    a.addEventListener('click', function (ev) {
+      ev.preventDefault();
+      try { sessionStorage.setItem('efk-zip-ok', '1'); } catch (e) { /* fine */ }
+      if (o.parentNode) o.parentNode.removeChild(o);
+    });
+    c.appendChild(h); c.appendChild(p); c.appendChild(a);
+    o.appendChild(c);
+    document.body.appendChild(o);
+  }
+  if (document.body) show();
+  else document.addEventListener('DOMContentLoaded', show);
+})();
+</script>
+<!--EFK_ZIPGUARD_END-->
+</body>
+</html>
