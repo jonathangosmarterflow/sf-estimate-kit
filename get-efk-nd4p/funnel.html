@@ -152,7 +152,7 @@ label.fl{font-size:13px;font-weight:700;color:var(--ink-soft);display:block;marg
 (function (root) {
   'use strict';
 
-  var VERSION = '1.2';
+  var VERSION = '1.2.1';
 
   /* The one email relay the kit supports (option "Email me each lead"). Facts
    * checked 2026-09-30: JSON POST from a browser, CORS open to any origin
@@ -1913,9 +1913,11 @@ label.fl{font-size:13px;font-weight:700;color:var(--ink-soft);display:block;marg
     };
   }
 
-  /* v1.1.2: the owner alert. When the CRM webhook fails or times out and a backup
-   * email key is set, the same lead goes to the owner by email, ALERT line first. */
-  var ALERT_LINE = 'ALERT: your CRM webhook failed, this lead was emailed instead. Check your funnel settings.';
+  /* v1.1.2: the owner alert. When the CRM send is not confirmed (a network error, no answer in
+   * 15 seconds, or, for a CRM whose answer the browser can read, an error answer) and a backup
+   * email key is set, the same lead goes to the owner by email, ALERT line first. v1.2.1: the line
+   * says what is known, not more: a timed out send can still land in the CRM later. */
+  var ALERT_LINE = 'ALERT: your CRM did not confirm this lead, so it was emailed to you. It may also be in your CRM. Check your funnel settings.';
 
   function alertKey(config) {
     var lc = config && isObj(config.lead_capture) ? config.lead_capture : {};
@@ -1928,7 +1930,7 @@ label.fl{font-size:13px;font-weight:700;color:var(--ink-soft);display:block;marg
     /* the alert key goes first in the email Web3Forms writes, the message starts with it too */
     return {
       access_key: alertKey(config),
-      subject: ('ALERT, CRM send failed. ' + b.subject).slice(0, 150),
+      subject: ('ALERT, CRM did not confirm. ' + b.subject).slice(0, 150),
       from_name: b.from_name,
       alert: ALERT_LINE,
       name: b.name,
@@ -1940,12 +1942,54 @@ label.fl{font-size:13px;font-weight:700;color:var(--ink-soft);display:block;marg
     };
   }
 
+  /* v1.2.1: webhooks whose answer the browser is allowed to read. HighLevel inbound webhooks
+   * (services.leadconnectorhq.com) answer with Access-Control-Allow-Origin: * and accept a JSON
+   * body (checked 2026-10-02: a text/plain body is answered "Error: Request has invalid data").
+   * For these the funnel posts application/json in cors mode, reads the answer, and an HTTP
+   * error or a {"status":"Error..."} answer counts as failed. Every other webhook is posted
+   * no-cors as before: the browser cannot see that CRM's answer, so only a network error or
+   * no answer in 15 seconds counts as failed. */
+  var READABLE_WEBHOOK_RE = /^https:\/\/services\.leadconnectorhq\.com\//i;
+  function webhookReadable(url) { return READABLE_WEBHOOK_RE.test(str(url).trim()); }
+
+  /* One webhook post. Resolves, never rejects, to { state: 'sent' | 'failed', readable, detail }. */
+  function postWebhook(url, body, f) {
+    var readable = webhookReadable(url);
+    var text = JSON.stringify(body);
+    if (!readable) {
+      return Promise.resolve().then(function () {
+        return f(url, {
+          method: 'POST', mode: 'no-cors', keepalive: true,
+          headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+          body: text
+        });
+      }).then(function () { return { state: 'sent', readable: false, detail: '' }; },
+        function () { return { state: 'failed', readable: false, detail: 'no connection' }; });
+    }
+    return Promise.resolve().then(function () {
+      return f(url, {
+        method: 'POST', mode: 'cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: text
+      });
+    }).then(function (r) {
+      if (!r || !r.ok) return { state: 'failed', readable: true, detail: 'HTTP ' + (r && r.status ? r.status : 'error') };
+      return Promise.resolve().then(function () { return typeof r.text === 'function' ? r.text() : ''; }).then(function (t) {
+        var j = null;
+        try { j = JSON.parse(t); } catch (e) { j = null; }
+        var st = j && typeof j.status === 'string' ? j.status.trim() : '';
+        if (/^error/i.test(st)) return { state: 'failed', readable: true, detail: st.slice(0, 160) };
+        return { state: 'sent', readable: true, detail: st.slice(0, 160) };
+      }, function () { return { state: 'sent', readable: true, detail: '' }; });
+    }, function () { return { state: 'failed', readable: true, detail: 'no connection' }; });
+  }
+
   /* Send one lead. deps.fetch is the browser's fetch (or a test double), deps.timeoutMs
    * defaults to 15 seconds per attempt. Resolves, never rejects, to
    * { state: 'sent' | 'failed' | 'unknown' | 'none', via: 'webhook' | 'email' | 'alert' | '' }.
-   * A webhook is posted no-cors (most CRMs send no CORS headers), so the browser only tells us
-   * whether it went out, and a network failure is 'failed'. The email relay answers with JSON,
-   * so there 'sent' means the relay said success. 'sent' is never said for anything else. */
+   * The webhook goes through postWebhook (above): read for HighLevel, no-cors for the rest. The
+   * email relay answers with JSON, so there 'sent' means the relay accepted it. Neither is proof
+   * the lead reached an inbox or a contact was made. */
   function sendLead(config, answers, contact, meta, deps) {
     var d = isObj(deps) ? deps : {};
     var f = typeof d.fetch === 'function' ? d.fetch : null;
@@ -1979,13 +2023,8 @@ label.fl{font-size:13px;font-weight:700;color:var(--ink-soft);display:block;marg
       return relay(relayBody(config, answers, contact, meta)).then(function (s) { return { state: s, via: 'email' }; });
     }
     var url = config.lead_capture.webhook_url;
-    return timed(Promise.resolve().then(function () {
-      return f(url, {
-        method: 'POST', mode: 'no-cors', keepalive: true,
-        headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
-        body: JSON.stringify(payload(config, answers, contact, meta))
-      });
-    }).then(function () { return 'sent'; }, function () { return 'failed'; })).then(function (w) {
+    return timed(postWebhook(url, payload(config, answers, contact, meta), f)
+      .then(function (r) { return r.state; })).then(function (w) {
       if (w === 'sent' || !alertKey(config)) return { state: w, via: 'webhook' };
       return relay(alertRelayBody(config, answers, contact, meta)).then(function (a) {
         if (a === 'sent') return { state: 'sent', via: 'alert' };
@@ -2114,10 +2153,64 @@ label.fl{font-size:13px;font-weight:700;color:var(--ink-soft);display:block;marg
     return { ok: true, config: cfg, reason: '' };
   }
 
+  /* v1.2.1: split a live link fragment into the packed settings and any query written after
+   * them. "LINK#v1.xxx?utm_source=booked" happens when an owner appends ?utm_source=booked to a
+   * live link; the settings alphabet has no "?", so the split is safe. */
+  function splitLinkFragment(fragment) {
+    var f = fragment === null || fragment === undefined ? '' : String(fragment);
+    if (f.charAt(0) === '#') f = f.slice(1);
+    var q = f.indexOf('?');
+    if (q === -1) return { packed: f, query: '' };
+    return { packed: f.slice(0, q), query: f.slice(q + 1) };
+  }
+
+  /* The utm_ values a visitor arrived with: from the page query (location.search), and from a
+   * query written after a live link's settings. The page query wins when both carry one. */
+  function linkUtm(search, fragment) {
+    var out = { utm_source: '', utm_medium: '', utm_campaign: '' };
+    function take(q) {
+      var parts = str(q).replace(/^\?/, '').split('&');
+      var got = {};
+      for (var i = 0; i < parts.length; i++) {
+        var kv = parts[i].split('=');
+        var k = '', v = '';
+        try { k = decodeURIComponent(kv[0].replace(/\+/g, ' ')); v = decodeURIComponent(kv.slice(1).join('=').replace(/\+/g, ' ')); } catch (e) { continue; }
+        if (Object.prototype.hasOwnProperty.call(out, k) && !got[k]) got[k] = v.slice(0, 120);
+      }
+      return got;
+    }
+    var fromHash = take(splitLinkFragment(fragment).query);
+    var fromPage = take(search);
+    for (var k in out) {
+      if (!Object.prototype.hasOwnProperty.call(out, k)) continue;
+      out[k] = fromPage[k] || fromHash[k] || '';
+    }
+    return out;
+  }
+
+  /* The call prep link for a booking confirmation: the funnel link with utm_source=booked in its
+   * query, which is always BEFORE any #. Works for a hosted file and for a live link. */
+  function callPrepLink(url) {
+    var s = str(url).trim();
+    if (!s) return '';
+    var hash = '';
+    var h = s.indexOf('#');
+    if (h !== -1) { hash = s.slice(h); s = s.slice(0, h); }
+    /* a query an owner wrote after the settings belongs before the # */
+    var hq = hash.indexOf('?');
+    var extra = '';
+    if (hq !== -1) { extra = hash.slice(hq + 1); hash = hash.slice(0, hq); }
+    var q = '';
+    var qi = s.indexOf('?');
+    if (qi !== -1) { q = s.slice(qi + 1); s = s.slice(0, qi); }
+    var parts = (q + (q && extra ? '&' : '') + extra).split('&').filter(function (p) { return p && !/^utm_source=/i.test(p); });
+    parts.push('utm_source=booked');
+    return s + '?' + parts.join('&') + hash;
+  }
+
   function decodeLink(fragment) {
     return Promise.resolve().then(function () {
-      var f = fragment === null || fragment === undefined ? '' : String(fragment);
-      if (f.charAt(0) === '#') f = f.slice(1);
+      var f = splitLinkFragment(fragment).packed;
       if (!f) return linkFail('the link has no settings in it');
       if (f.length > LINK_MAX_FRAGMENT) return linkFail('the link is too long');
       var m = /^v([01])\.([A-Za-z0-9_-]+)$/.exec(f);
@@ -2234,6 +2327,12 @@ label.fl{font-size:13px;font-weight:700;color:var(--ink-soft);display:block;marg
     alertKey: alertKey,
     alertRelayBody: alertRelayBody,
     sendLead: sendLead,
+    /* v1.2.1 */
+    webhookReadable: webhookReadable,
+    postWebhook: postWebhook,
+    splitLinkFragment: splitLinkFragment,
+    linkUtm: linkUtm,
+    callPrepLink: callPrepLink,
     isPlaceholderUrl: isPlaceholderUrl,
     linkConfig: linkConfig,
     encodeLink: encodeLink,
@@ -2484,13 +2583,11 @@ try {
  * iframe built from srcdoc cannot carry a query string. Never from a live link. */
 try { if (!RUNNER && /"preview_result"\s*:\s*true/.test(RAW)) PREVIEW_RESULT = true; } catch(e){}
 
+/* v1.2.1: utm_ values come from the page query (a hosted file, or a live link written
+ * LINK?utm_source=booked#v1...) and from a query written after a live link's settings
+ * (LINK#v1...?utm_source=booked). EFK.linkUtm reads both. */
 var UTM = { utm_source:'', utm_medium:'', utm_campaign:'' };
-try {
-  var qp = new URLSearchParams(location.search);
-  UTM.utm_source = (qp.get('utm_source')||'').slice(0,120);
-  UTM.utm_medium = (qp.get('utm_medium')||'').slice(0,120);
-  UTM.utm_campaign = (qp.get('utm_campaign')||'').slice(0,120);
-} catch(e){}
+try { UTM = EFK.linkUtm(location.search, location.hash); } catch(e){}
 
 function applyBrand(){
   try {
