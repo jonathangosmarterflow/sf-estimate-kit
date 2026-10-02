@@ -1655,7 +1655,10 @@ label.fl{font-size:13px;font-weight:700;color:var(--ink-soft);display:block;marg
       page_url: '', utm_source: '', utm_medium: '', utm_campaign: '',
       submitted_at: '', kit_version: VERSION,
       /* v1.1, additive: one human readable block for a CRM note or an email */
-      summary_text: ''
+      summary_text: '',
+      /* v1.1.1, additive: the two ends ready to read, as the result card shows
+       * them ("$4,500", or "12 hours"), so an email never says "4500 to 9500" */
+      estimate_low_text: '', estimate_high_text: ''
     };
     try {
       var cfg = isObj(config) ? config : defaults();
@@ -1671,6 +1674,10 @@ label.fl{font-size:13px;font-weight:700;color:var(--ink-soft);display:block;marg
       out.services_text = est.services_text || '';
       out.estimate_low = est.lo;
       out.estimate_high = est.hi;
+      if (est.hi > 0) {
+        out.estimate_low_text = fmtPlain(est.lo, cfg);
+        out.estimate_high_text = fmtPlain(est.hi, cfg);
+      }
       out.estimate_unit = est.unit;
       out.currency = str(cfg.business && cfg.business.currency) || 'USD';
       out.timeline_text = est.timeline_text || '';
@@ -2830,7 +2837,7 @@ function selftest(){
     check('exactly one outbound call to action', ctaCount <= 1, 'found ' + ctaCount);
 
     var payload = EFK.payload(CFG, answers, { name:'T', email:'t@example.com', phone:'' }, {});
-    var wantKeys = ['name','email','phone','business_name','niche','services_text','estimate_low','estimate_high','estimate_unit','currency','timeline_text','answers_text','knobs_text','page_url','utm_source','utm_medium','utm_campaign','submitted_at','kit_version','summary_text'];
+    var wantKeys = ['name','email','phone','business_name','niche','services_text','estimate_low','estimate_high','estimate_unit','currency','timeline_text','answers_text','knobs_text','page_url','utm_source','utm_medium','utm_campaign','submitted_at','kit_version','summary_text','estimate_low_text','estimate_high_text'];
     var got = Object.keys(payload).sort().join(',');
     check('webhook payload keys are the fixed set', got === wantKeys.slice().sort().join(','), got);
 
