@@ -142,7 +142,7 @@ label.fl{font-size:13px;font-weight:700;color:var(--ink-soft);display:block;marg
 
 <script type="application/json" id="FUNNEL_CONFIG">
 {
-  "kit_version": "1.1",
+  "kit_version": "1.2",
   "business": {
     "name": "Northlake Heating & Air",
     "niche": "hvac",
@@ -440,7 +440,8 @@ label.fl{font-size:13px;font-weight:700;color:var(--ink-soft);display:block;marg
   "toggles": {
     "contact_before_result": false,
     "show_timeline": true,
-    "show_drivers": true
+    "show_drivers": true,
+    "timeline_style": "about"
   },
   "calibration": {
     "per_service": {},
@@ -455,6 +456,7 @@ label.fl{font-size:13px;font-weight:700;color:var(--ink-soft);display:block;marg
       "phone"
     ],
     "consent_text": "",
+    "watch_list": [],
     "destination": "none"
   },
   "result_copy": {
@@ -467,7 +469,7 @@ label.fl{font-size:13px;font-weight:700;color:var(--ink-soft);display:block;marg
 }
 </script>
 
-<script>/* Estimate Funnel Kit - engine.js - v1.1
+<script>/* Estimate Funnel Kit - engine.js - v1.2
  * Pure functions. No dependencies. Runs in node and in the browser.
  * Nothing in here ever throws. If something is wrong you get plain English back.
  * Attaches to globalThis.EFK and also exports for node.
@@ -475,7 +477,7 @@ label.fl{font-size:13px;font-weight:700;color:var(--ink-soft);display:block;marg
 (function (root) {
   'use strict';
 
-  var VERSION = '1.1';
+  var VERSION = '1.2';
 
   /* The one email relay the kit supports (option "Email me each lead"). Facts
    * checked 2026-09-30: JSON POST from a browser, CORS open to any origin
@@ -770,9 +772,9 @@ label.fl{font-size:13px;font-weight:700;color:var(--ink-soft);display:block;marg
         range_width: 50, price_level: 50, safety_buffer: 30,
         rush_premium: 50, rounding: 60, detail_shown: 50
       },
-      toggles: { contact_before_result: false, show_timeline: true, show_drivers: true },
+      toggles: { contact_before_result: false, show_timeline: true, show_drivers: true, timeline_style: 'about' },
       calibration: { per_service: {}, last_trained: null, rounds: 0 },
-      lead_capture: { destination: 'none', webhook_url: '', email_key: '', alert_email_key: '', fields: ['name', 'email', 'phone'], consent_text: '' },
+      lead_capture: { destination: 'none', webhook_url: '', email_key: '', alert_email_key: '', fields: ['name', 'email', 'phone'], consent_text: '', watch_list: [] },
       result_copy: {
         headline: 'Your estimated range',
         disclaimer: 'This is an estimate, not a final quote. Your exact price depends on the details, which we go through with you before any work starts.',
@@ -1288,6 +1290,13 @@ label.fl{font-size:13px;font-weight:700;color:var(--ink-soft);display:block;marg
     cfg.toggles.contact_before_result = truthy(rawTog.contact_before_result, false);
     cfg.toggles.show_timeline = truthy(rawTog.show_timeline, true);
     cfg.toggles.show_drivers = truthy(rawTog.show_drivers, true);
+    /* v1.2: "about" shows one figure from the middle of the day range, "range" shows "X to Y days" */
+    var ts = isStr(rawTog.timeline_style) ? rawTog.timeline_style.trim().toLowerCase() : '';
+    if (ts && TIMELINE_STYLES.indexOf(ts) === -1) {
+      uniqPush(repairs, 'The timeline style was not "about" or "range", so we set it to "about", which shows one number of days.');
+      ts = '';
+    }
+    cfg.toggles.timeline_style = ts || 'about';
 
     /* ---- calibration ---- */
     var rawCal = isObj(raw.calibration) ? raw.calibration : {};
@@ -1363,6 +1372,7 @@ label.fl{font-size:13px;font-weight:700;color:var(--ink-soft);display:block;marg
     }
     cfg.lead_capture.fields = fields;
     cfg.lead_capture.consent_text = isStr(rawLead.consent_text) ? rawLead.consent_text.trim().slice(0, 300) : '';
+    cfg.lead_capture.watch_list = cleanWatchList(rawLead.watch_list);
 
     /* ---- result copy ---- */
     var rawCopy = isObj(raw.result_copy) ? raw.result_copy : {};
@@ -1750,8 +1760,10 @@ label.fl{font-size:13px;font-weight:700;color:var(--ink-soft);display:block;marg
     else if (unit === 'hours') text = fmtHours(rLo) + ' to ' + fmtHours(rHi) + ' hours';
     else text = fmtHours(rLo) + ' to ' + fmtHours(rHi) + ' hours' + (priceLo !== null ? ' (' + fmtMoney(priceLo, cfg) + ' to ' + fmtMoney(priceHi, cfg) + ')' : '');
 
-    var timelineText = dLo === dHi
-      ? (dLo === 1 ? 'About 1 day on site' : 'About ' + dLo + ' days')
+    var tStyle = cfg.toggles && cfg.toggles.timeline_style === 'range' ? 'range' : 'about';
+    var tDays = tStyle === 'about' ? Math.round((dLo + dHi) / 2) : dLo;
+    var timelineText = (dLo === dHi || tStyle === 'about')
+      ? (tDays === 1 ? 'About 1 day on site' : 'About ' + tDays + ' days')
       : dLo + ' to ' + dHi + ' days';
 
     var names = [];
@@ -1971,6 +1983,110 @@ label.fl{font-size:13px;font-weight:700;color:var(--ink-soft);display:block;marg
   }
 
   /* ------------------------------------------------------------------ *
+   * 9b. v1.2: possibly fake leads and the owner's watch list
+   * ------------------------------------------------------------------ */
+
+  var TIMELINE_STYLES = ['about', 'range'];
+  var FAKE_NAME_WORDS = ['test', 'testing', 'tester', 'asdf', 'asdfg', 'asdfgh', 'qwerty', 'fake', 'dummy', 'sample', 'xxx'];
+  var FAKE_FULL_NAMES = ['john doe', 'jane doe'];
+  var FAKE_EMAIL_DOMAINS = ['example.com', 'example.org', 'example.net'];
+  var FAKE_EMAIL_TLDS = ['test', 'example', 'invalid', 'localhost'];
+
+  function normWords(v) {
+    return str(v).toLowerCase().replace(/[^a-z0-9@.\s'-]/g, ' ').replace(/[\s]+/g, ' ').trim();
+  }
+
+  /* The estimate ALWAYS still shows and sends. This only labels the lead, so the
+   * owner's workflow can skip the call task. Plain reasons, one per rule hit. */
+  function fakeCheck(contact) {
+    var c = isObj(contact) ? contact : {};
+    var reasons = [];
+    var name = normWords(c.name).replace(/[.'-]/g, ' ').replace(/\s+/g, ' ').trim();
+    if (name) {
+      var words = name.split(' ');
+      var hit = '';
+      for (var i = 0; i < words.length && !hit; i++) {
+        if (FAKE_NAME_WORDS.indexOf(words[i]) !== -1) hit = words[i];
+        else if (/^([a-z])\1{2,}$/.test(words[i])) hit = words[i];
+      }
+      if (!hit && FAKE_FULL_NAMES.indexOf(name) !== -1) hit = name;
+      if (hit) reasons.push('the name looks like a test (' + hit + ')');
+    }
+    var email = str(c.email).trim().toLowerCase();
+    var at = email.lastIndexOf('@');
+    if (at > 0) {
+      var dom = email.slice(at + 1);
+      var tld = dom.split('.').pop();
+      if (FAKE_EMAIL_DOMAINS.indexOf(dom) !== -1 || FAKE_EMAIL_TLDS.indexOf(tld) !== -1) reasons.push('the email address is a test address (' + dom + ')');
+    }
+    var digits = str(c.phone).replace(/\D/g, '');
+    if (digits.length === 11 && digits.charAt(0) === '1') digits = digits.slice(1);
+    if (digits.length >= 7) {
+      var local7 = digits.slice(-7);
+      if (/^55501\d\d$/.test(local7)) reasons.push('the phone number is a 555-01xx number, which is kept for films and tests');
+      else if (/^(\d)\1+$/.test(digits)) reasons.push('the phone number is one digit repeated');
+      else if ('01234567890123456789'.indexOf(digits) !== -1 || '98765432109876543210'.indexOf(digits) !== -1) reasons.push('the phone number is digits in a row');
+    }
+    return { possibly_fake: reasons.length > 0, reasons: reasons };
+  }
+
+  /* The watch list: names or email domains the owner types. It never ships as
+   * plain text: the funnel file and a live link carry a short fingerprint of each
+   * entry (#xxxxxxxx), because anyone can read a web page's source. */
+  var WATCH_HASH_RE = /^#[0-9a-f]{8}$/;
+  function watchNorm(v) {
+    return str(v).toLowerCase().replace(/^[\s@]+/, '').replace(/[^a-z0-9@.&'\s-]/g, ' ').replace(/\s+/g, ' ').trim();
+  }
+  function watchHash(v) {
+    var s = 'efk-watch:' + v, h = 0x811c9dc5;
+    for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul ? Math.imul(h, 0x01000193) : (h * 0x01000193) | 0; }
+    return '#' + ('0000000' + (h >>> 0).toString(16)).slice(-8);
+  }
+  function cleanWatchList(raw) {
+    var list = isArr(raw) ? raw : (isStr(raw) ? raw.split(/[\n,;]+/) : []);
+    var out = [];
+    for (var i = 0; i < list.length && out.length < 200; i++) {
+      if (!isStr(list[i])) continue;
+      var t = list[i].trim().toLowerCase();
+      var v = WATCH_HASH_RE.test(t) ? t : watchNorm(t).slice(0, 80);
+      if (v && out.indexOf(v) === -1) out.push(v);
+    }
+    return out;
+  }
+  function watchHashes(list) {
+    var set = {};
+    var l = cleanWatchList(list);
+    for (var i = 0; i < l.length; i++) set[WATCH_HASH_RE.test(l[i]) ? l[i] : watchHash(l[i])] = true;
+    return set;
+  }
+  function watchMatch(config, contact) {
+    var lc = config && isObj(config.lead_capture) ? config.lead_capture : {};
+    var set = watchHashes(lc.watch_list);
+    if (!Object.keys(set).length) return false;
+    var c = isObj(contact) ? contact : {};
+    var cands = [watchNorm(c.name), watchNorm(c.company)];
+    var email = watchNorm(c.email).replace(/\s/g, '');
+    if (email) {
+      cands.push(email);
+      var at = email.lastIndexOf('@');
+      if (at > 0) {
+        var parts = email.slice(at + 1).split('.');
+        for (var p = 0; p < parts.length - 1; p++) cands.push(parts.slice(p).join('.'));
+      }
+    }
+    for (var j = 0; j < cands.length; j++) if (cands[j] && set[watchHash(cands[j])]) return true;
+    return false;
+  }
+  /* The config as it may be published: the watch list as fingerprints only. */
+  function publicConfig(config) {
+    var c = deepClone(isObj(config) ? config : defaults());
+    if (isObj(c.lead_capture) && c.lead_capture.watch_list !== undefined) {
+      c.lead_capture.watch_list = Object.keys(watchHashes(c.lead_capture.watch_list)).sort();
+    }
+    return c;
+  }
+
+  /* ------------------------------------------------------------------ *
    * 10. The webhook payload - these keys NEVER change
    * ------------------------------------------------------------------ */
 
@@ -1990,7 +2106,11 @@ label.fl{font-size:13px;font-weight:700;color:var(--ink-soft);display:block;marg
       summary_text: '',
       /* v1.1.1, additive: the two ends ready to read, as the result card shows
        * them ("$4,500", or "12 hours"), so an email never says "4500 to 9500" */
-      estimate_low_text: '', estimate_high_text: ''
+      estimate_low_text: '', estimate_high_text: '',
+      /* v1.2, additive: a lead that looks like a test or made up (the estimate still
+       * shows and still sends), and a match on the owner's watch list */
+      possibly_fake: false, fake_reasons: '',
+      watch_match: false
     };
     try {
       var cfg = isObj(config) ? config : defaults();
@@ -2046,6 +2166,13 @@ label.fl{font-size:13px;font-weight:700;color:var(--ink-soft);display:block;marg
       sum.push('Service(s): ' + (est.services_text || '(none picked)'));
       sum.push('Estimate: ' + estimateLine(est, cfg));
       if (out.timeline_text) sum.push('Timeline: ' + out.timeline_text);
+
+      var fk = fakeCheck(c);
+      out.possibly_fake = fk.reasons.length > 0;
+      out.fake_reasons = fk.reasons.join('; ').slice(0, 300);
+      out.watch_match = watchMatch(cfg, c);
+      if (out.possibly_fake) sum.push('Possibly a test or made up lead: ' + out.fake_reasons);
+      if (out.watch_match) sum.push('On your watch list');
       sum.push('');
       out.summary_text = (sum.join('\n') + '\n' + out.answers_text).slice(0, 4000);
 
@@ -2222,7 +2349,7 @@ label.fl{font-size:13px;font-weight:700;color:var(--ink-soft);display:block;marg
   /* The config minus everything the doctor puts back by itself, so the link
    * (and its QR code) stays as small as it can. */
   function linkConfig(config) {
-    var c = deepClone(isObj(config) ? config : defaults());
+    var c = publicConfig(config);
     var d = defaults();
     delete c.preview_result; delete c.kit_version; delete c.demo_banner; delete c.demo_banner_url;
     function sameAs(a, b) { return JSON.stringify(a) === JSON.stringify(b); }
@@ -2237,6 +2364,7 @@ label.fl{font-size:13px;font-weight:700;color:var(--ink-soft);display:block;marg
     if (isObj(c.lead_capture)) {
       var lc = c.lead_capture;
       if (sameAs(lc.fields, d.lead_capture.fields)) delete lc.fields;
+      if (isArr(lc.watch_list) && !lc.watch_list.length) delete lc.watch_list;
       for (var lk in lc) if (Object.prototype.hasOwnProperty.call(lc, lk) && lc[lk] === '') delete lc[lk];
       if (lc.destination === 'none') delete lc.destination;
     }
@@ -2436,7 +2564,12 @@ label.fl{font-size:13px;font-weight:700;color:var(--ink-soft);display:block;marg
     encodeLink: encodeLink,
     decodeLink: decodeLink,
     LINK_MAX_FRAGMENT: LINK_MAX_FRAGMENT,
-    LINK_MAX_JSON: LINK_MAX_JSON
+    LINK_MAX_JSON: LINK_MAX_JSON,
+    /* v1.2 */
+    fakeCheck: fakeCheck,
+    watchMatch: watchMatch,
+    publicConfig: publicConfig,
+    timelineStyles: TIMELINE_STYLES.slice()
   };
 
   /* ------------------------------------------------------------------ *
@@ -3234,7 +3367,7 @@ function selftest(){
     check('exactly one outbound call to action', ctaCount <= 1, 'found ' + ctaCount);
 
     var payload = EFK.payload(CFG, answers, { name:'T', email:'t@example.com', phone:'' }, {});
-    var wantKeys = ['name','email','phone','business_name','niche','services_text','estimate_low','estimate_high','estimate_unit','currency','timeline_text','answers_text','knobs_text','page_url','utm_source','utm_medium','utm_campaign','submitted_at','kit_version','summary_text','estimate_low_text','estimate_high_text'];
+    var wantKeys = ['name','email','phone','business_name','niche','services_text','estimate_low','estimate_high','estimate_unit','currency','timeline_text','answers_text','knobs_text','page_url','utm_source','utm_medium','utm_campaign','submitted_at','kit_version','summary_text','estimate_low_text','estimate_high_text','possibly_fake','fake_reasons','watch_match'];
     var got = Object.keys(payload).sort().join(',');
     check('webhook payload keys are the fixed set', got === wantKeys.slice().sort().join(','), got);
 

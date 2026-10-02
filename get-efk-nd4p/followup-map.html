@@ -2,149 +2,193 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Instant estimate</title>
+<title>Estimate Funnel Kit - Follow-up map</title>
 <style>
 :root{
   --brand:#1d4ed8;
-  --brand-soft:rgba(29,78,216,.10);
-  --brand-line:rgba(29,78,216,.28);
-  --ink:#111827;
-  --ink-soft:#4b5563;
-  --ink-faint:#6b7280;
-  --line:#e5e7eb;
-  --card:#ffffff;
-  --bg:#f4f6fb;
-  --ok:#047857;
-  --radius:18px;
-  --shadow:0 1px 2px rgba(16,24,40,.04), 0 12px 32px rgba(16,24,40,.08);
+  --ink:#0f172a; --ink2:#475569; --ink3:#64748b;
+  --line:#e2e8f0; --line2:#cbd5e1;
+  --bg:#f1f5f9; --card:#fff;
+  --ok:#047857; --okbg:#ecfdf5; --okline:#a7f3d0;
+  --warn:#b45309; --warnbg:#fffbeb; --warnline:#fde68a;
+  --bad:#b91c1c; --badbg:#fef2f2; --badline:#fecaca;
+  --r:14px;
+  --sh:0 1px 2px rgba(15,23,42,.05), 0 10px 26px rgba(15,23,42,.07);
+  /* one colour per channel, picked from the Studio palette */
+  --c-email:#1d4ed8; --c-emailbg:#eff4ff;
+  --c-sms:#047857;   --c-smsbg:#ecfdf5;
+  --c-task:#b45309;  --c-taskbg:#fffbeb;
+  --c-notify:#7c3aed; --c-notifybg:#f5f3ff;
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
 body{
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji",sans-serif;
-  background:var(--bg);
-  color:var(--ink);
-  -webkit-font-smoothing:antialiased;
-  font-size:16px;
-  line-height:1.5;
-  min-height:100%;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg);color:var(--ink);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;
 }
-body::before{
-  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
-  background:radial-gradient(900px 420px at 50% -8%, var(--brand-soft), transparent 70%);
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--brand)}
+
+.top{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.topin{max-width:820px;margin:0 auto;padding:11px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.brandmark{font-weight:800;letter-spacing:-.02em;font-size:16px;display:flex;align-items:center;gap:9px}
+.dot{width:10px;height:10px;border-radius:3px;background:var(--brand);display:inline-block}
+.pagechip{font-size:13px;font-weight:700;color:var(--ink2);background:#f1f5f9;border-radius:999px;padding:5px 12px}
+
+.shell{max-width:820px;margin:0 auto;padding:20px 18px 60px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);padding:20px;margin-bottom:18px}
+.card h1{margin:0 0 6px;font-size:22px;letter-spacing:-.02em}
+.lead{margin:0 0 14px;color:var(--ink2);font-size:14.5px}
+.caption{font-size:13.5px;color:var(--ink2);background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:0}
+
+.controls{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px}
+.f{display:block}
+.f > span{display:block;font-size:13px;font-weight:700;color:var(--ink2);margin-bottom:5px}
+.i{min-width:230px;padding:9px 12px;border:1px solid var(--line2);border-radius:10px;background:#fff;font-size:14.5px}
+.i:focus{outline:2px solid rgba(29,78,216,.28);outline-offset:1px;border-color:var(--brand)}
+.b{appearance:none;border:1px solid var(--line2);background:#fff;border-radius:10px;padding:9px 14px;font-size:14px;font-weight:700;cursor:pointer}
+.b:hover{background:#f8fafc;border-color:#94a3b8}
+.b.sm{padding:5px 10px;font-size:12.5px;border-radius:8px}
+.srcnote{font-size:12px;color:var(--ink3);margin-top:4px}
+.filewrap input{display:none}
+
+.sample{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:4px}
+.sample div{background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:8px 11px}
+.sample b{display:block;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink3);font-weight:800}
+.sample span{font-size:14px;font-weight:700}
+
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--ink2);margin-top:12px}
+
+/* ---- the canvas ---- */
+.canvas{position:relative;padding:6px 0 4px}
+.node{position:relative;margin:0 auto;max-width:640px}
+.trigger{background:var(--ink);color:#fff;border-radius:var(--r);padding:16px 18px;box-shadow:var(--sh)}
+.trigger .k{font-size:11.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;opacity:.7}
+.trigger .t{font-size:17px;font-weight:800;margin-top:2px}
+.trigger ul{margin:8px 0 0;padding-left:18px;font-size:13px;opacity:.85}
+.link{width:2px;height:30px;background:var(--line2);margin:0 auto;position:relative}
+.link.tall{height:44px}
+.link::after{content:"";position:absolute;left:50%;bottom:-1px;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--line2);border-bottom:0}
+.wait{display:flex;justify-content:center}
+.wait span{background:#fff;border:1.5px dashed var(--line2);border-radius:999px;padding:6px 14px;font-size:13px;font-weight:800;color:var(--ink2)}
+
+.step{background:var(--card);border:1px solid var(--line);border-left:5px solid var(--cc);border-radius:var(--r);box-shadow:var(--sh);padding:14px 16px}
+.step.email{--cc:var(--c-email);--cbg:var(--c-emailbg)}
+.step.sms{--cc:var(--c-sms);--cbg:var(--c-smsbg)}
+.step.task{--cc:var(--c-task);--cbg:var(--c-taskbg)}
+.step.notify{--cc:var(--c-notify);--cbg:var(--c-notifybg)}
+.shead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.chan{font-size:11.5px;font-weight:800;letter-spacing:.06em;color:var(--cc);background:var(--cbg);border-radius:999px;padding:3px 10px}
+.when{font-size:13px;font-weight:800;color:var(--ink)}
+.to{font-size:13px;color:var(--ink2);margin-left:auto}
+.subj{font-weight:800;font-size:15.5px;line-height:1.35;margin-bottom:6px;word-break:break-word}
+.body{font-size:14px;color:var(--ink2);white-space:pre-wrap;word-break:break-word}
+.body.full{background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:12px;margin-top:8px;color:var(--ink)}
+.instr{font-size:13px;color:var(--ink3);margin:6px 0 0}
+.sfoot{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}
+.notes{font-size:12.5px;color:var(--ink3);flex:1;min-width:200px}
+.warnchip{font-size:12px;font-weight:800;color:var(--warn);background:var(--warnbg);border:1px solid var(--warnline);border-radius:999px;padding:2px 10px}
+.duesub{font-size:12.5px;color:var(--ink3)}
+
+mark.m{background:#dbeafe;color:#1e3a8a;border-radius:4px;padding:0 3px;font-weight:700}
+.of{border-bottom:1.5px dotted var(--ink3);color:var(--ink);font-weight:600}
+.lg-m{background:#dbeafe;color:#1e3a8a;border-radius:4px;padding:0 5px;font-weight:700}
+.lg-o{border-bottom:1.5px dotted var(--ink3);font-weight:600}
+
+.endnote{max-width:640px;margin:16px auto 0;font-size:13px;color:var(--ink3);text-align:center}
+.secthead{max-width:640px;margin:34px auto 12px}
+.secthead h2{margin:0;font-size:18px;letter-spacing:-.01em}
+.secthead p{margin:2px 0 0;font-size:13.5px;color:var(--ink2)}
+.branch{display:flex;justify-content:center}
+.branch span{background:var(--warnbg);border:1.5px solid var(--warnline);color:var(--warn);border-radius:999px;padding:6px 14px;font-size:13px;font-weight:800}
+.trigger.cal{background:#1e3a8a}
+.err{background:var(--badbg);border:1px solid var(--badline);color:var(--bad);border-radius:10px;padding:10px 12px;font-size:13.5px;margin-top:10px}
+
+@media (max-width:560px){
+  .shell{padding:14px 12px 40px}
+  .card{padding:16px}
+  .to{margin-left:0;width:100%}
+  .i{min-width:0;width:100%}
+  .controls .f{width:100%}
 }
-.wrap{position:relative;z-index:1;max-width:620px;margin:0 auto;padding:20px 16px 44px}
-.banner{
-  max-width:620px;margin:0 auto 12px;padding:9px 14px;border-radius:12px;
-  background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;
-  font-size:13px;font-weight:600;display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;
+
+@media print{
+  @page{margin:12mm}
+  body{background:#fff;font-size:12px}
+  .top,.controls,.noprint,.toggle{display:none !important}
+  .shell{padding:0;max-width:none}
+  .card{box-shadow:none;padding:10px 12px;margin-bottom:8px}
+  .card h1{font-size:17px}
+  .lead{margin-bottom:6px;font-size:12px}
+  .caption{font-size:11px;padding:6px 8px}
+  .sample div{padding:4px 8px}
+  .sample span{font-size:12px}
+  .legend{margin-top:6px;font-size:11px}
+  .step,.trigger{box-shadow:none;padding:8px 12px;break-inside:avoid;page-break-inside:avoid}
+  .trigger{background:#fff;color:var(--ink);border:1.5px solid var(--ink)}
+  .trigger ul{font-size:11px}
+  .link{height:12px}
+  .link.tall{height:16px}
+  .subj{font-size:12.5px;margin-bottom:3px}
+  .body{font-size:11.5px}
+  .body.full{display:none}
+  .notes,.instr,.duesub{font-size:10.5px}
+  .sfoot{margin-top:4px}
+  mark.m{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .step{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .endnote{margin-top:6px;font-size:10.5px}
+  .secthead{margin:14px 0 6px;break-before:page;page-break-before:always}
+  .trigger.cal{background:#fff}
 }
-.banner a{color:#9a3412;font-weight:700}
-.head{display:flex;align-items:center;gap:12px;margin-bottom:14px;min-height:34px}
-.logo{height:34px;width:auto;max-width:150px;object-fit:contain;display:block}
-.bizname{font-weight:700;font-size:16px;letter-spacing:-.01em}
-.tag{font-size:13px;color:var(--ink-faint);margin-left:auto;text-align:right}
-.card{
-  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
-  box-shadow:var(--shadow);overflow:hidden;
-}
-.pbar{height:5px;background:var(--line);position:relative}
-.pbar i{position:absolute;inset:0 auto 0 0;width:0%;background:var(--brand);border-radius:0 4px 4px 0;transition:width .35s cubic-bezier(.2,.8,.2,1)}
-.pad{padding:24px 22px 22px}
-.meta{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--ink-faint);font-weight:600;margin-bottom:12px;letter-spacing:.01em}
-.back{
-  appearance:none;background:none;border:0;padding:6px 8px;margin:-6px 0 -6px -8px;border-radius:9px;
-  font:inherit;font-size:13px;font-weight:600;color:var(--ink-faint);cursor:pointer;
-}
-.back:hover{background:#f3f4f6;color:var(--ink)}
-.back:focus-visible,.opt:focus-visible,.btn:focus-visible,.inp:focus-visible,.textlink:focus-visible{outline:3px solid var(--brand-line);outline-offset:2px}
-h1.q{font-size:23px;line-height:1.28;letter-spacing:-.02em;margin:0 0 6px;font-weight:700}
-.sub{font-size:14.5px;color:var(--ink-soft);margin:0 0 18px}
-.opts{display:flex;flex-direction:column;gap:9px;margin:0 0 4px}
-.opt{
-  appearance:none;width:100%;text-align:left;font:inherit;font-size:15.5px;font-weight:600;
-  background:#fff;border:1.5px solid var(--line);border-radius:13px;padding:14px 46px 14px 15px;
-  cursor:pointer;color:var(--ink);position:relative;transition:border-color .15s,background .15s,transform .08s;
-}
-.opt:hover{border-color:var(--brand-line);background:#fbfcff}
-.opt:active{transform:scale(.995)}
-.opt .oh{display:block;font-size:13px;font-weight:500;color:var(--ink-faint);margin-top:3px}
-.opt[aria-pressed="true"],.opt.sel{border-color:var(--brand);background:var(--brand-soft)}
-.opt .tick{
-  position:absolute;right:14px;top:50%;transform:translateY(-50%);
-  width:21px;height:21px;border-radius:50%;border:1.5px solid var(--line);background:#fff;
-  display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;font-weight:800;
-}
-.opt.sel .tick{background:var(--brand);border-color:var(--brand)}
-.btn{
-  appearance:none;width:100%;font:inherit;font-size:16px;font-weight:700;color:#fff;background:var(--brand);
-  border:0;border-radius:13px;padding:15px 18px;cursor:pointer;margin-top:14px;
-  box-shadow:0 6px 18px rgba(29,78,216,.22);transition:filter .15s,transform .08s;text-align:center;
-  text-decoration:none;display:block;
-}
-.btn:hover{filter:brightness(1.06)}
-.btn:active{transform:translateY(1px)}
-.btn[disabled]{opacity:.45;cursor:not-allowed;box-shadow:none}
-.btn.ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line);box-shadow:none;font-weight:600}
-.fields{display:flex;flex-direction:column;gap:11px;margin-top:4px}
-label.fl{font-size:13px;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:5px}
-.inp{
-  width:100%;font:inherit;font-size:16px;padding:13px 14px;border:1.5px solid var(--line);
-  border-radius:12px;background:#fff;color:var(--ink);
-}
-.inp:focus{border-color:var(--brand)}
-.err{color:#b91c1c;font-size:13.5px;font-weight:600;margin-top:10px;display:none}
-.err.on{display:block}
-.hp{position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0;pointer-events:none}
-.fine{font-size:12.5px;color:var(--ink-faint);margin-top:12px;line-height:1.5}
-.res-lab{font-size:13px;font-weight:700;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
-.res-num{
-  font-size:clamp(30px,8.5vw,46px);font-weight:800;letter-spacing:-.03em;line-height:1.08;color:var(--brand);
-  margin:0 0 6px;word-break:break-word;
-}
-.res-alt{font-size:15px;font-weight:600;color:var(--ink-soft);margin-bottom:12px}
-.chipline{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 16px}
-.chip{background:#f3f4f6;border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600;color:var(--ink-soft)}
-.chip.time{background:var(--brand-soft);color:var(--brand)}
-.sec{border-top:1px solid var(--line);margin-top:18px;padding-top:16px}
-.sec h2{font-size:14px;font-weight:800;margin:0 0 10px;letter-spacing:-.01em}
-.drv{display:flex;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line);font-size:14px;align-items:flex-start}
-.drv:last-child{border-bottom:0}
-.drv .dl{flex:1;color:var(--ink-soft)}
-.drv .dl b{color:var(--ink);font-weight:700;display:block;font-size:14px}
-.drv .dv{font-weight:700;font-size:13.5px;color:var(--ink);white-space:nowrap}
-.li{display:flex;justify-content:space-between;gap:12px;padding:7px 0;font-size:14.5px;border-bottom:1px dashed var(--line)}
-.li:last-child{border-bottom:0}
-.li b{font-weight:700}
-.disc{font-size:12.5px;color:var(--ink-faint);margin-top:14px;line-height:1.55}
-.spin{display:inline-block;width:15px;height:15px;border:2.5px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;vertical-align:-3px;margin-right:8px}
-@keyframes sp{to{transform:rotate(360deg)}}
-.fadein{animation:fi .26s ease both}
-@keyframes fi{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
-.foot{text-align:center;font-size:12px;color:var(--ink-faint);margin-top:16px}
-.kitfoot{position:relative;z-index:1;text-align:center;font-size:12px;color:var(--ink-faint);padding:6px 16px 22px}
-.kitfoot a{color:var(--ink-faint);font-weight:600}
-.sec h2.st{margin-bottom:6px}
-.panic{max-width:620px;margin:40px auto;background:#fff;border:1px solid #fecaca;border-left:5px solid #dc2626;border-radius:14px;padding:22px}
-.panic h2{margin:0 0 8px;font-size:19px}
-.panic li{margin:6px 0;font-size:14.5px}
-.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-@media (max-width:420px){ .pad{padding:20px 16px 18px} h1.q{font-size:21px} }
-@media (prefers-reduced-motion:reduce){ *{animation:none!important;transition:none!important} }
 </style>
 </head>
 <body>
+<div class="top"><div class="topin">
+  <div class="brandmark"><span class="dot"></span>Estimate Funnel Kit</div>
+  <div class="pagechip">Follow-up map</div>
+</div></div>
 
-<div id="root"></div>
-<div id="selftest" class="sr" aria-live="polite"></div>
+<div class="shell">
+  <div class="card">
+    <h1>What happens after a lead submits</h1>
+    <p class="lead">Every message your HighLevel workflow sends, in order: when it goes out, how, who gets it, and what it says, with a sample lead's real numbers filled in.</p>
+    <div class="controls">
+      <label class="f"><span>Sample niche</span>
+        <select class="i" id="niche"></select>
+        <div class="srcnote" id="srcnote"></div>
+      </label>
+      <div class="f filewrap noprint">
+        <span>Or see it with your own numbers</span>
+        <label class="b" for="ownfile">Use my funnel file</label>
+        <input type="file" id="ownfile" accept=".html,.htm,.json">
+        <div class="srcnote">Pick your my-funnel.html or my-config.json. It stays on your computer.</div>
+      </div>
+      <button class="b noprint" id="print" type="button">Print this map</button>
+    </div>
+    <div id="ownerr"></div>
+    <div class="sample" id="sample"></div>
+    <div class="legend">
+      <span><span class="lg-m">Blue</span> = filled in from the lead automatically</span>
+      <span><span class="lg-o">Dotted</span> = you type this once in HighLevel</span>
+    </div>
+  </div>
 
-<script type="application/json" id="FUNNEL_CONFIG">
-{"kit_version":"1.1"}
-</script>
+  <p class="caption" id="caption">This is the sequence the HighLevel install guide builds (Part 3, sections 3.2 to 3.8). Change the copy in the guide or in your workflow, then update this map.</p>
 
-<script>/* Estimate Funnel Kit - engine.js - v1.2
+  <div class="secthead"><h2>1. After a lead submits</h2><p>The workflow Estimate Funnel Lead, from the first second to two weeks later.</p></div>
+  <div class="canvas" id="canvas"></div>
+  <p class="endnote" id="endnote"></p>
+
+  <div class="secthead"><h2>2. After a lead books a call</h2><p>The booking messages: confirmation, reminders, a missed call and a cancelled call.</p></div>
+  <div class="canvas" id="canvas-booking"></div>
+  <p class="endnote" id="endnote-booking"></p>
+</div>
+
+<script type="application/json" id="FOLLOWUP_SEQUENCE">{"_about":"The single source of truth for the follow-up map (followup-map.html). Every subject and body here is copied word for word from highlevel/INSTALL.md (Part 3: 3.2, 3.3, 3.4, 3.5, 3.7, 3.8, and Part 4). tools/followup-map-check.mjs fails if they drift apart. Change the guide first, then this file, then rebuild the map.","source":"highlevel/INSTALL.md","workflow_name":"Estimate Funnel Lead","placeholders":{"{{contact.first_name}}":{"from":"name","part":"first"},"{{contact.last_name}}":{"from":"name","part":"rest"},"{{contact.estimate_low_text}}":{"from":"estimate_low_text"},"{{contact.estimate_high_text}}":{"from":"estimate_high_text"},"{{contact.estimate_services}}":{"from":"services_text"},"{{contact.estimate_timeline}}":{"from":"timeline_text"},"{{contact.estimate_answers}}":{"from":"answers_text"},"{{appointment.start_time}}":{"system":"appointment_time","shows":"the call time"}},"owner_fills":{"[Your name]":{"shows":"your name","fill":"owner_name"},"[Your business]":{"shows":"your business name","fill":"business_name"},"[your business]":{"shows":"your business name","fill":"business_name"},"YOUR-BOOKING-LINK":{"shows":"your booking link","fill":"booking_url"},"YOUR-FUNNEL-LINK":{"shows":"your funnel link","fill":"funnel_url"}},"trigger":{"id":"trigger","type":"trigger","label":"Lead submits the estimate funnel","channel":"webhook","delay":0,"notes":"Inbound Webhook trigger. The funnel sends one webhook with the same keys for every lead.","behind_the_scenes":["Creates or updates the contact","Adds the tag estimate-funnel-lead","Creates an opportunity in your Estimates pipeline, stage New Estimate"]},"steps":[{"id":"notify-owner","type":"notify","channel":"email","delay":0,"to":"owner","subject":"New estimate lead: {{contact.first_name}} {{contact.last_name}}","body":null,"body_instruction":"put `{{contact.estimate_low_text}}` to `{{contact.estimate_high_text}}`, the services line and the answers line in it, plus the contact link","preview_lines":["{{contact.estimate_low_text}} to {{contact.estimate_high_text}}","{{contact.estimate_services}}","{{contact.estimate_answers}}","(link to the contact)"],"merge_fields":["name","estimate_low_text","estimate_high_text","services_text","answers_text"],"notes":"Internal Notification > Email, to you. This is your speed to lead alarm."},{"id":"email-lead","type":"email","channel":"email","delay":0,"to":"lead","subject":"Your estimate: {{contact.estimate_low_text}} to {{contact.estimate_high_text}}, {{contact.first_name}}","body":"Hi {{contact.first_name}},\n\nHere is your estimate again so you have it in writing:\n\n{{contact.estimate_services}}\n{{contact.estimate_low_text}} to {{contact.estimate_high_text}}\nTypical timeline: {{contact.estimate_timeline}}\n\nThat range is based on what you told us. It is an estimate, not a final quote. The exact number depends on what we find when we look at the job properly, and we will not surprise you with it.\n\nThe fastest way to turn this into a real number is a short call. Pick any time that suits you here:\nYOUR-BOOKING-LINK\n\nIf anything about the range looks off, just reply to this email and tell me what I have got wrong.\n\n[Your name]\n[Your business]","merge_fields":["name","estimate_low_text","estimate_high_text","services_text","timeline_text"],"notes":"Send it immediately, from a real person, not noreply@. One link only, your booking link."},{"id":"wait-2","type":"wait","channel":"none","delay":0,"duration":2,"to":"none","subject":null,"body":null,"merge_fields":[],"notes":"Two minutes apart means two notifications instead of one."},{"id":"sms-lead","type":"sms","channel":"sms","delay":2,"to":"lead","subject":null,"body":"{{contact.first_name}}, [your business] here. Your estimate came out at {{contact.estimate_low_text}} to {{contact.estimate_high_text}}. It is an estimate, not a final quote, and the details are in your email. Want to lock in a real number? Grab a time: YOUR-BOOKING-LINK Reply STOP to opt out.","merge_fields":["name","estimate_low_text","estimate_high_text"],"notes":"Leave this step switched off until your A2P registration is approved. The email works on its own.","warning":"Off until A2P is approved"},{"id":"task-call","type":"task","channel":"task","delay":2,"due_in":60,"to":"owner","subject":"Call this estimate lead","body":null,"merge_fields":[],"notes":"Assigned to whoever calls people. The automation buys you the hour. It does not replace the human call. Skipped when Estimate Possibly Fake is true (3.5)."},{"id":"day-1","type":"email","channel":"email","delay":1440,"to":"lead","subject":"Did your estimate land, {{contact.first_name}}?","body":"Hi {{contact.first_name}},\n\nQuick check that yesterday's estimate reached you: {{contact.estimate_low_text}} to {{contact.estimate_high_text}} for {{contact.estimate_services}}.\n\nDid that range look about right for what you had in mind? A one line reply is plenty. If something looks off, I will tell you why.\n\nIf you would rather talk it through, pick a time here:\nYOUR-BOOKING-LINK\n\n[Your name]\n[Your business]","merge_fields":["name","estimate_low_text","estimate_high_text","services_text"],"notes":"Asks if the range looked right. A reply is the best outcome here."},{"id":"day-3","type":"email","channel":"email","delay":4320,"to":"lead","subject":"What waiting usually does to a job like this","body":"Hi {{contact.first_name}},\n\nA plain fact about putting a job off: it rarely gets cheaper. Small problems tend to grow, prices tend to creep up, and the dates that suit you best are the first to fill.\n\nThat is not a reason to rush. It is a reason to turn your estimate of {{contact.estimate_low_text}} to {{contact.estimate_high_text}} into a real number while you decide. A short call does that:\nYOUR-BOOKING-LINK\n\n[Your name]\n[Your business]","merge_fields":["name","estimate_low_text","estimate_high_text"],"notes":"The cost of waiting, said plainly. No fake deadline."},{"id":"day-7","type":"email","channel":"email","delay":10080,"to":"lead","subject":"How the call and the visit work","body":"Hi {{contact.first_name}},\n\nIn case it helps to know what happens next, here is how we work.\n\nThe call is short. We go through what you told us, ask the few questions the form could not, and tell you what we think the job needs.\n\nIf the job needs eyes on it, we book a visit at a time that suits you. We look properly, explain what we found in plain words, and tell you the price before any work starts. You decide after that, with no pressure either way.\n\nIf that sounds useful, pick a time here:\nYOUR-BOOKING-LINK\n\n[Your name]\n[Your business]","merge_fields":["name"],"notes":"How you work: what happens on the call and on the visit."},{"id":"day-14","type":"email","channel":"email","delay":20160,"to":"lead","subject":"Should I close your file, {{contact.first_name}}?","body":"Hi {{contact.first_name}},\n\nI have not heard back since your estimate, so I will close your file and stop emailing you about it.\n\nBefore I do, one question: what held you back? A one word answer is fine. Price, timing, someone else, or just not now, all of it helps.\n\nIf you ever want to pick it up again, reply to this email.\n\n[Your name]\n[Your business]","merge_fields":["name"],"notes":"Closes the file and asks one question. No link on purpose."}],"stops_when":"The follow-ups stop the moment the lead books a call, replies, or opts out.","stop_rules":["Goal Event: appointment booked","Workflow settings: Stop on response","DND: HighLevel never sends to a contact on DND"],"booking":{"workflow_name":"Estimate Call Booked","trigger":{"id":"booking-trigger","type":"trigger","label":"Lead books a call","channel":"calendar","delay":0,"notes":"Customer Booked Appointment trigger on your estimate call calendar (3.8).","behind_the_scenes":["Ends the follow-up sequence above (its booked goal)","Missed and cancelled calls start their own short workflows"]},"anchors":{"booked":"after booking","before_call":"before the call","no_show":"after you mark it No Show","cancel":"when they cancel"},"steps":[{"id":"bk-confirm","type":"email","channel":"email","anchor":"booked","delay":0,"to":"lead","subject":"You are booked, {{contact.first_name}}","body":"Hi {{contact.first_name}},\n\nYou are booked for {{appointment.start_time}}. Thank you.\n\nOne thing that helps us prepare, and takes about 2 minutes: run through the estimate questions here if you have not already. Your answers come straight to us, so the call can start with your job instead of the basics.\nYOUR-FUNNEL-LINK?utm_source=booked\n\nIf the time stops working, reply to this email.\n\n[Your name]\n[Your business]","merge_fields":["name"],"notes":"Its one link is your funnel with ?utm_source=booked, 2 minutes of call prep."},{"id":"bk-24h","type":"email","channel":"email","anchor":"before_call","delay":1440,"to":"lead","subject":"Tomorrow: your call with [Your business]","body":"Hi {{contact.first_name}},\n\nA reminder that we are talking {{appointment.start_time}}.\n\nNothing to prepare. If you have photos of the job, keep them handy.\n\nIf the time no longer works, reply and tell me.\n\n[Your name]\n[Your business]","merge_fields":["name"],"notes":"Skipped when they booked inside 24 hours."},{"id":"bk-1h","type":"sms","channel":"sms","anchor":"before_call","delay":60,"to":"lead","subject":null,"body":"{{contact.first_name}}, [your business] here. A reminder that our call starts in about an hour. Reply here if anything changed. Reply STOP to opt out.","merge_fields":["name"],"notes":"An SMS once A2P is approved. Until then, the same words as an email.","warning":"Email until A2P is approved"},{"id":"ns-1h","type":"email","channel":"email","anchor":"no_show","delay":60,"to":"lead","subject":"Sorry we missed you, {{contact.first_name}}","body":"Hi {{contact.first_name}},\n\nWe were set to talk at {{appointment.start_time}} and could not reach you. No problem, things come up.\n\nIf you still want a real number on the job, pick a new time here:\nYOUR-BOOKING-LINK\n\n[Your name]\n[Your business]","merge_fields":["name"],"notes":"Workflow Estimate Call Missed. Starts only when you mark the call No Show."},{"id":"ns-2d","type":"email","channel":"email","anchor":"no_show","delay":2940,"to":"lead","subject":"Still want that number, {{contact.first_name}}?","body":"Hi {{contact.first_name}},\n\nThis is my last note about the call we missed. If the job is still on your list, a new time is quick to book:\nYOUR-BOOKING-LINK\n\nIf it is not, no reply needed.\n\n[Your name]\n[Your business]","merge_fields":["name"],"notes":"The last nudge. Stops if they book again or reply."},{"id":"cx","type":"email","channel":"email","anchor":"cancel","delay":0,"to":"lead","subject":"Your call is cancelled, {{contact.first_name}}","body":"Hi {{contact.first_name}},\n\nYour call is cancelled. There is nothing else you need to do.\n\nOne question, if you have a moment: what made you cancel? A one line reply is plenty.\n\n[Your name]\n[Your business]","merge_fields":["name"],"notes":"Workflow Estimate Call Cancelled. One question, no link."}],"stops_when":"Mark no-shows right away: the missed call messages only start when the call is marked No Show."}}</script>
+<script>
+/* Estimate Funnel Kit - engine.js - v1.2
  * Pure functions. No dependencies. Runs in node and in the browser.
  * Nothing in here ever throws. If something is wrong you get plain English back.
  * Attaches to globalThis.EFK and also exports for node.
@@ -2332,797 +2376,262 @@ label.fl{font-size:13px;font-weight:700;color:var(--ink-soft);display:block;marg
   }
 
 })(typeof globalThis !== 'undefined' ? globalThis : (typeof window !== 'undefined' ? window : this));
-</script>
 
-<script>/* Estimate Funnel Kit - zip preview guard (v1.1). One source, inlined by build.mjs
- * into START-HERE.html, studio.html and funnel.html. On Windows, double clicking a
- * file inside a zip opens a temporary copy, and nothing next to it works. This
- * spots that case and says so, once, in plain words. Hosted https pages and
- * normal folders never trigger it. */
-(function () {
-  function efkLooksLikeZipPreview(href) {
-    var s = String(href || '');
-    if (!/^file:/i.test(s)) return false;
-    var p = s;
-    try { p = decodeURIComponent(s); } catch (e) { /* keep it raw */ }
-    p = p.replace(/\\/g, '/').toLowerCase();
-    if (/\.zip\//.test(p)) return true;
-    if (/\/appdata\/local\/temp\//.test(p)) return true;
-    if (/\/temp\d+_[^\/]*\//.test(p)) return true;
-    if (/\/7zo[0-9a-z]*\//.test(p)) return true;
-    if (/\/rar\$ex[^\/]*\//.test(p)) return true;
-    return false;
-  }
-  if (typeof window === 'undefined' || typeof document === 'undefined') {
-    if (typeof globalThis !== 'undefined') globalThis.efkLooksLikeZipPreview = efkLooksLikeZipPreview;
-    return;
-  }
-  window.efkLooksLikeZipPreview = efkLooksLikeZipPreview;
-  var here = '';
-  try { here = location.href; } catch (e) { return; }
-  if (!efkLooksLikeZipPreview(here)) return;
-  try { if (sessionStorage.getItem('efk-zip-ok') === '1') return; } catch (e) { /* storage blocked */ }
-  function show() {
-    if (document.getElementById('efk-zip-guard')) return;
-    var o = document.createElement('div');
-    o.id = 'efk-zip-guard';
-    o.setAttribute('role', 'alertdialog');
-    o.setAttribute('aria-label', 'Extract the kit first');
-    o.style.cssText = 'position:fixed;inset:0;z-index:2147483000;background:#f6f7f9;display:flex;align-items:center;justify-content:center;padding:16px;font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:#0f172a';
-    var c = document.createElement('div');
-    c.style.cssText = 'max-width:560px;width:100%;background:#fff;border:1px solid #e3e7ee;border-left:5px solid #d97706;border-radius:14px;padding:26px 24px;box-shadow:0 12px 32px rgba(15,23,42,.08)';
-    var h = document.createElement('h1');
-    h.style.cssText = 'font-size:22px;line-height:1.25;margin:0 0 10px;letter-spacing:-.01em';
-    h.textContent = 'One step first: this kit is still inside the zip.';
-    var p = document.createElement('p');
-    p.style.cssText = 'margin:0 0 18px;color:#334155';
-    p.textContent = 'Close this tab, right click the zip, choose Extract All, then open START-HERE.html from the new folder.';
-    var a = document.createElement('a');
-    a.href = '#';
-    a.textContent = 'Continue anyway';
-    a.style.cssText = 'font-size:14px;color:#64748b';
-    a.addEventListener('click', function (ev) {
-      ev.preventDefault();
-      try { sessionStorage.setItem('efk-zip-ok', '1'); } catch (e) { /* fine */ }
-      if (o.parentNode) o.parentNode.removeChild(o);
-    });
-    c.appendChild(h); c.appendChild(p); c.appendChild(a);
-    o.appendChild(c);
-    document.body.appendChild(o);
-  }
-  if (document.body) show();
-  else document.addEventListener('DOMContentLoaded', show);
-})();
 </script>
-
 <script>
-(function(){
-"use strict";
+(function () {
+  'use strict';
+  var EFK = window.EFK;
+  var PRESETS = {"agency-highlevel":{"kit_version":"1.2","business":{"name":"Bluewave Marketing Agency","niche":"agency-highlevel","tagline":"See your project hours before you book a call","currency":"USD","currency_symbol":"$","unit":"hours","hourly_rate":125,"booking_url":"","logo_url":"","brand_color":"#db2777","phone":"","service_area":""},"services":[{"key":"highlevel_setup","label":"HighLevel account setup","lo":6,"hi":14,"days_lo":1,"days_hi":3,"help":"Getting your account fully set up","example_data":true},{"key":"funnel_build","label":"Funnel or landing page build","lo":8,"hi":20,"days_lo":2,"days_hi":5,"help":"A built and styled funnel or page","example_data":true},{"key":"automation_build","label":"Workflow automation build","lo":6,"hi":16,"days_lo":1,"days_hi":4,"help":"Automations that run in the background","example_data":true},{"key":"pipeline_setup","label":"Pipeline and CRM setup","lo":4,"hi":10,"days_lo":1,"days_hi":2,"help":"Getting your leads organized","example_data":true},{"key":"migration","label":"Migration from another platform","lo":15,"hi":40,"days_lo":3,"days_hi":7,"help":"Moving your data and setup over","example_data":true}],"allow_multiple_services":true,"questions":[{"key":"urgency","label":"How soon do you need this live?","type":"single","applies_to":[],"options":[{"label":"No rush, flexible","effect":{"type":"multiply","value":0.9}},{"label":"Within a couple weeks","effect":{"type":"multiply","value":1}},{"label":"Need it live fast","effect":{"type":"multiply","value":1.18}},{"label":"Not sure","effect":{"type":"widen","value":0.1}}],"role":"urgency"},{"key":"complexity","label":"How complex is what you need?","type":"single","applies_to":[],"options":[{"label":"Simple, one or two steps","effect":{"type":"multiply","value":0.9}},{"label":"Moderate, a few steps or integrations","effect":{"type":"multiply","value":1.07}},{"label":"Complex, many steps or custom logic","effect":{"type":"multiply","value":1.29}},{"label":"Not sure","effect":{"type":"widen","value":0.15}}]},{"key":"integration_count","label":"How many outside tools need to connect?","type":"single","applies_to":["funnel_build","automation_build","migration"],"options":[{"label":"None","effect":{"type":"multiply","value":0.9}},{"label":"A couple outside tools","effect":{"type":"multiply","value":1.07}},{"label":"Several tools or custom API work","effect":{"type":"multiply","value":1.25}},{"label":"Not sure","effect":{"type":"widen","value":0.15}}]},{"key":"existing_setup","label":"What are we starting from?","type":"single","applies_to":["highlevel_setup","migration","pipeline_setup"],"options":[{"label":"Starting from scratch","effect":{"type":"multiply","value":1}},{"label":"Some existing setup to build on","effect":{"type":"multiply","value":0.95}},{"label":"Messy existing setup needing cleanup first","effect":{"type":"multiply","value":1.14}},{"label":"Not sure","effect":{"type":"widen","value":0.12}}]}],"knobs":{"range_width":50,"price_level":50,"safety_buffer":30,"rush_premium":50,"rounding":50,"detail_shown":55},"toggles":{"contact_before_result":false,"show_timeline":true,"show_drivers":true,"timeline_style":"about"},"calibration":{"per_service":{},"last_trained":null,"rounds":0},"lead_capture":{"webhook_url":"","fields":["name","email","phone"],"consent_text":"","watch_list":[]},"result_copy":{"headline":"Your estimated project hours","disclaimer":"This is an estimate, not a final quote. Your exact price depends on the details, which we go through with you before any work starts.","cta_label":"Book your free call"}},"auto-detailing":{"kit_version":"1.2","business":{"name":"Shine Line Auto Detailing","niche":"auto-detailing","tagline":"See your price range before you book a detail","currency":"USD","currency_symbol":"$","unit":"price","hourly_rate":null,"booking_url":"","logo_url":"","brand_color":"#1e293b","phone":"","service_area":""},"services":[{"key":"basic_wash_wax","label":"Basic wash and wax","lo":60,"hi":120,"days_lo":1,"days_hi":1,"help":"A quick outside clean and shine","example_data":true},{"key":"full_interior_exterior","label":"Full interior and exterior detail","lo":150,"hi":350,"days_lo":1,"days_hi":1,"help":"A deep clean inside and out","example_data":true},{"key":"paint_correction","label":"Paint correction and polish","lo":350,"hi":900,"days_lo":1,"days_hi":2,"help":"Removes swirl marks and light scratches","example_data":true},{"key":"ceramic_coating","label":"Ceramic coating application","lo":600,"hi":1800,"days_lo":1,"days_hi":2,"help":"A long lasting protective coating","example_data":true},{"key":"engine_bay_detail","label":"Engine bay detailing","lo":80,"hi":200,"days_lo":1,"days_hi":1,"help":"A careful clean of the engine area","example_data":true}],"allow_multiple_services":false,"questions":[{"key":"urgency","label":"How soon do you need this done?","type":"single","applies_to":[],"options":[{"label":"Whenever works, no rush","effect":{"type":"multiply","value":0.9}},{"label":"Within a few days","effect":{"type":"multiply","value":1}},{"label":"Need it done today or tomorrow","effect":{"type":"multiply","value":1.17}},{"label":"Not sure","effect":{"type":"widen","value":0.1}}],"role":"urgency"},{"key":"vehicle_size","label":"What size is your vehicle?","type":"single","applies_to":[],"options":[{"label":"Sedan or small car","effect":{"type":"multiply","value":0.9}},{"label":"SUV or midsize","effect":{"type":"multiply","value":1.04}},{"label":"Truck, van, or large SUV","effect":{"type":"multiply","value":1.17}},{"label":"Not sure","effect":{"type":"widen","value":0.1}}]},{"key":"vehicle_condition","label":"What condition is the vehicle in?","type":"single","applies_to":["full_interior_exterior","paint_correction","ceramic_coating"],"options":[{"label":"Well maintained, light dirt","effect":{"type":"multiply","value":0.9}},{"label":"Moderate dirt, some stains","effect":{"type":"multiply","value":1.09}},{"label":"Heavy dirt, pet hair, or neglect","effect":{"type":"multiply","value":1.25}},{"label":"Not sure","effect":{"type":"widen","value":0.15}}]},{"key":"paint_condition","label":"What shape is the paint in?","type":"single","applies_to":["paint_correction","ceramic_coating"],"options":[{"label":"Minor swirl marks only","effect":{"type":"multiply","value":0.9}},{"label":"Noticeable scratches or oxidation","effect":{"type":"multiply","value":1.13}},{"label":"Heavy damage or never corrected","effect":{"type":"multiply","value":1.3}},{"label":"Not sure","effect":{"type":"widen","value":0.15}}]}],"knobs":{"range_width":50,"price_level":50,"safety_buffer":30,"rush_premium":50,"rounding":45,"detail_shown":45},"toggles":{"contact_before_result":false,"show_timeline":true,"show_drivers":true,"timeline_style":"about"},"calibration":{"per_service":{},"last_trained":null,"rounds":0},"lead_capture":{"webhook_url":"","fields":["name","email","phone"],"consent_text":"","watch_list":[]},"result_copy":{"headline":"Your estimated detailing price range","disclaimer":"This is an estimate, not a final quote. Your exact price depends on the details, which we go through with you before any work starts.","cta_label":"Book your free call"}},"cleaning":{"kit_version":"1.2","business":{"name":"Fresh Nest Cleaning Co.","niche":"cleaning","tagline":"See your price range before you book a cleaning","currency":"USD","currency_symbol":"$","unit":"price","hourly_rate":null,"booking_url":"","logo_url":"","brand_color":"#059669","phone":"","service_area":""},"services":[{"key":"standard_clean","label":"Standard home cleaning","lo":120,"hi":280,"days_lo":1,"days_hi":1,"help":"A regular clean for a tidy home","example_data":true},{"key":"deep_clean","label":"Deep cleaning","lo":250,"hi":550,"days_lo":1,"days_hi":1,"help":"A thorough top to bottom clean","example_data":true},{"key":"move_out_clean","label":"Move in or move out cleaning","lo":300,"hi":650,"days_lo":1,"days_hi":1,"help":"A full clean for an empty home","example_data":true},{"key":"carpet_cleaning","label":"Carpet cleaning","lo":150,"hi":400,"days_lo":1,"days_hi":1,"help":"Steam cleaning for carpeted rooms","example_data":true},{"key":"window_cleaning","label":"Window cleaning","lo":150,"hi":350,"days_lo":1,"days_hi":1,"help":"Inside and outside window cleaning","example_data":true}],"allow_multiple_services":true,"questions":[{"key":"urgency","label":"When do you need this done?","type":"single","applies_to":[],"options":[{"label":"Flexible timing","effect":{"type":"multiply","value":0.9}},{"label":"Within the next few days","effect":{"type":"multiply","value":1}},{"label":"As soon as possible","effect":{"type":"multiply","value":1.21}},{"label":"Not sure","effect":{"type":"widen","value":0.1}}],"role":"urgency"},{"key":"home_size","label":"How big is your home?","type":"single","applies_to":["standard_clean","deep_clean","move_out_clean"],"options":[{"label":"Under 1,200 sq ft","effect":{"type":"multiply","value":0.85}},{"label":"1,200 to 2,400 sq ft","effect":{"type":"multiply","value":1}},{"label":"Over 2,400 sq ft","effect":{"type":"multiply","value":1.25}},{"label":"Not sure","effect":{"type":"widen","value":0.1}}]},{"key":"pet_condition","label":"Do you have pets in the home?","type":"single","applies_to":["standard_clean","deep_clean","carpet_cleaning"],"options":[{"label":"No pets","effect":{"type":"multiply","value":0.95}},{"label":"Pets, but the home is tidy","effect":{"type":"multiply","value":1}},{"label":"Pets with heavy shedding or mess","effect":{"type":"multiply","value":1.17}},{"label":"Not sure","effect":{"type":"widen","value":0.1}}]},{"key":"clutter_level","label":"How much clutter is in the home?","type":"single","applies_to":["deep_clean","move_out_clean"],"options":[{"label":"Light clutter, mostly tidy","effect":{"type":"multiply","value":0.9}},{"label":"Moderate clutter","effect":{"type":"multiply","value":1.04}},{"label":"Heavy clutter or neglected for a while","effect":{"type":"multiply","value":1.25}},{"label":"Not sure","effect":{"type":"widen","value":0.12}}]}],"knobs":{"range_width":50,"price_level":50,"safety_buffer":30,"rush_premium":50,"rounding":40,"detail_shown":45},"toggles":{"contact_before_result":false,"show_timeline":true,"show_drivers":true,"timeline_style":"about"},"calibration":{"per_service":{},"last_trained":null,"rounds":0},"lead_capture":{"webhook_url":"","fields":["name","email","phone"],"consent_text":"","watch_list":[]},"result_copy":{"headline":"Your estimated cleaning price range","disclaimer":"This is an estimate, not a final quote. Your exact price depends on the details, which we go through with you before any work starts.","cta_label":"Book your free call"}},"consulting":{"kit_version":"1.2","business":{"name":"Compass Point Consulting","niche":"consulting","tagline":"See your estimated hours before you book a call","currency":"USD","currency_symbol":"$","unit":"hours","hourly_rate":150,"booking_url":"","logo_url":"","brand_color":"#4338ca","phone":"","service_area":""},"services":[{"key":"strategy_session","label":"One time strategy session","lo":2,"hi":4,"days_lo":1,"days_hi":1,"help":"A focused session on one problem","example_data":true},{"key":"process_audit","label":"Business process audit","lo":6,"hi":14,"days_lo":2,"days_hi":4,"help":"A review of how your business runs today","example_data":true},{"key":"implementation_support","label":"Implementation support","lo":8,"hi":24,"days_lo":3,"days_hi":7,"help":"Hands on help putting a plan into action","example_data":true},{"key":"monthly_advisory","label":"Monthly advisory block","lo":6,"hi":12,"days_lo":1,"days_hi":2,"help":"Ongoing monthly guidance","example_data":true},{"key":"team_training","label":"Team training session","lo":3,"hi":6,"days_lo":1,"days_hi":1,"help":"A training session for your team","example_data":true}],"allow_multiple_services":true,"questions":[{"key":"urgency","label":"How soon do you want to start?","type":"single","applies_to":[],"options":[{"label":"Flexible, whenever works","effect":{"type":"multiply","value":0.9}},{"label":"Within the next couple weeks","effect":{"type":"multiply","value":1}},{"label":"Need to start right away","effect":{"type":"multiply","value":1.18}},{"label":"Not sure","effect":{"type":"widen","value":0.1}}],"role":"urgency"},{"key":"company_size","label":"How big is your team?","type":"single","applies_to":["process_audit","implementation_support","monthly_advisory"],"options":[{"label":"Small team, under 10 people","effect":{"type":"multiply","value":0.9}},{"label":"Mid size, 10 to 50 people","effect":{"type":"multiply","value":1.05}},{"label":"Larger team, over 50 people","effect":{"type":"multiply","value":1.28}},{"label":"Not sure","effect":{"type":"widen","value":0.15}}]},{"key":"scope_clarity","label":"How clear is the scope of what you need?","type":"single","applies_to":[],"options":[{"label":"Clear scope, we know what we need","effect":{"type":"multiply","value":0.9}},{"label":"Somewhat defined, needs discussion","effect":{"type":"multiply","value":1.05}},{"label":"Not defined yet, needs discovery","effect":{"type":"multiply","value":1.23}},{"label":"Not sure","effect":{"type":"widen","value":0.15}}]},{"key":"documentation_state","label":"How documented are your current processes?","type":"single","applies_to":["process_audit","implementation_support"],"options":[{"label":"Already documented","effect":{"type":"multiply","value":0.9}},{"label":"Partially documented","effect":{"type":"multiply","value":1.05}},{"label":"Nothing documented yet","effect":{"type":"multiply","value":1.23}},{"label":"Not sure","effect":{"type":"widen","value":0.12}}]}],"knobs":{"range_width":50,"price_level":50,"safety_buffer":30,"rush_premium":50,"rounding":50,"detail_shown":50},"toggles":{"contact_before_result":false,"show_timeline":true,"show_drivers":true,"timeline_style":"about"},"calibration":{"per_service":{},"last_trained":null,"rounds":0},"lead_capture":{"webhook_url":"","fields":["name","email","phone"],"consent_text":"","watch_list":[]},"result_copy":{"headline":"Your estimated consulting hours","disclaimer":"This is an estimate, not a final quote. Your exact price depends on the details, which we go through with you before any work starts.","cta_label":"Book your free call"}},"electrical":{"kit_version":"1.2","business":{"name":"Bright Spark Electric","niche":"electrical","tagline":"A quick price range before you book an electrician","currency":"USD","currency_symbol":"$","unit":"price","hourly_rate":null,"booking_url":"","logo_url":"","brand_color":"#ca8a04","phone":"","service_area":""},"services":[{"key":"outlet_switch_repair","label":"Outlet or switch repair","lo":100,"hi":300,"days_lo":1,"days_hi":1,"help":"Fixing or replacing outlets and switches","example_data":true},{"key":"panel_upgrade","label":"Electrical panel upgrade","lo":1800,"hi":4500,"days_lo":1,"days_hi":2,"help":"A new panel with more capacity","example_data":true},{"key":"wiring_repair","label":"Wiring repair","lo":200,"hi":900,"days_lo":1,"days_hi":2,"help":"Fixing faulty or outdated wiring","example_data":true},{"key":"ev_charger_install","label":"EV charger installation","lo":800,"hi":2500,"days_lo":1,"days_hi":1,"help":"A home charging station for your car","example_data":true},{"key":"ceiling_fan_install","label":"Ceiling fan or light fixture install","lo":150,"hi":450,"days_lo":1,"days_hi":1,"help":"Swapping or adding a fixture","example_data":true},{"key":"whole_home_rewire","label":"Whole home rewiring","lo":6000,"hi":15000,"days_lo":3,"days_hi":7,"help":"Replacing the wiring throughout the home","example_data":true}],"allow_multiple_services":true,"questions":[{"key":"urgency","label":"How soon do you need this fixed?","type":"single","applies_to":[],"options":[{"label":"No rush, this week is fine","effect":{"type":"multiply","value":0.9}},{"label":"Within a few days","effect":{"type":"multiply","value":1}},{"label":"Emergency, sparks or no power","effect":{"type":"multiply","value":1.32}},{"label":"Not sure","effect":{"type":"widen","value":0.1}}],"role":"urgency"},{"key":"home_age","label":"How old is your home?","type":"single","applies_to":["panel_upgrade","whole_home_rewire","wiring_repair"],"options":[{"label":"Built in the last 20 years","effect":{"type":"multiply","value":0.9}},{"label":"20 to 50 years old","effect":{"type":"multiply","value":1.07}},{"label":"Over 50 years old","effect":{"type":"multiply","value":1.22}},{"label":"Not sure","effect":{"type":"widen","value":0.12}}]},{"key":"panel_amperage","label":"What size is your current panel?","type":"single","applies_to":["panel_upgrade","ev_charger_install"],"options":[{"label":"100 amp panel","effect":{"type":"multiply","value":1}},{"label":"150 amp panel","effect":{"type":"multiply","value":1.07}},{"label":"200 amp or larger panel","effect":{"type":"multiply","value":1.14}},{"label":"Not sure","effect":{"type":"widen","value":0.15}}]},{"key":"access_difficulty","label":"How easy is it to reach the panel or wiring?","type":"single","applies_to":[],"options":[{"label":"Easy access, finished walls are fine","effect":{"type":"multiply","value":0.9}},{"label":"Attic or crawl space access needed","effect":{"type":"multiply","value":1.14}},{"label":"Panel or wiring hard to reach","effect":{"type":"multiply","value":1.22}},{"label":"Not sure","effect":{"type":"widen","value":0.12}}]}],"knobs":{"range_width":50,"price_level":50,"safety_buffer":30,"rush_premium":50,"rounding":60,"detail_shown":50},"toggles":{"contact_before_result":false,"show_timeline":true,"show_drivers":true,"timeline_style":"about"},"calibration":{"per_service":{},"last_trained":null,"rounds":0},"lead_capture":{"webhook_url":"","fields":["name","email","phone"],"consent_text":"","watch_list":[]},"result_copy":{"headline":"Your estimated electrical price range","disclaimer":"This is an estimate, not a final quote. Your exact price depends on the details, which we go through with you before any work starts.","cta_label":"Book your free call"}},"garage-door":{"kit_version":"1.2","business":{"name":"Summit Garage Door Co.","niche":"garage-door","tagline":"A quick price range for your garage door","currency":"USD","currency_symbol":"$","unit":"price","hourly_rate":null,"booking_url":"","logo_url":"","brand_color":"#475569","phone":"","service_area":""},"services":[{"key":"spring_repair","label":"Garage door spring repair","lo":150,"hi":400,"days_lo":1,"days_hi":1,"help":"Replacing a broken spring","example_data":true},{"key":"opener_repair","label":"Garage door opener repair","lo":100,"hi":300,"days_lo":1,"days_hi":1,"help":"Fixing a noisy or slow opener","example_data":true},{"key":"opener_install","label":"Garage door opener installation","lo":300,"hi":650,"days_lo":1,"days_hi":1,"help":"A new opener with remotes","example_data":true},{"key":"door_install_single","label":"Single door replacement","lo":900,"hi":2200,"days_lo":1,"days_hi":2,"help":"A new single car garage door","example_data":true},{"key":"door_install_double","label":"Double door replacement","lo":1800,"hi":3800,"days_lo":1,"days_hi":2,"help":"A new double car garage door","example_data":true}],"allow_multiple_services":true,"questions":[{"key":"urgency","label":"How soon do you need this fixed?","type":"single","applies_to":[],"options":[{"label":"No rush, whenever works","effect":{"type":"multiply","value":0.9}},{"label":"Within a few days","effect":{"type":"multiply","value":1}},{"label":"Door is stuck, I can't use it","effect":{"type":"multiply","value":1.3}},{"label":"Not sure","effect":{"type":"widen","value":0.1}}],"role":"urgency"},{"key":"door_material","label":"What material do you want?","type":"single","applies_to":["door_install_single","door_install_double"],"options":[{"label":"Steel, standard","effect":{"type":"multiply","value":0.95}},{"label":"Wood or wood composite","effect":{"type":"multiply","value":1.15}},{"label":"Insulated or custom design","effect":{"type":"multiply","value":1.25}},{"label":"Not sure","effect":{"type":"widen","value":0.12}}]},{"key":"door_age","label":"How old is your current door or opener?","type":"single","applies_to":["spring_repair","opener_repair"],"options":[{"label":"Under 10 years old","effect":{"type":"multiply","value":0.9}},{"label":"10 to 20 years old","effect":{"type":"multiply","value":1.05}},{"label":"Over 20 years old","effect":{"type":"multiply","value":1.2}},{"label":"Not sure","effect":{"type":"widen","value":0.1}}]},{"key":"access_difficulty","label":"How easy is your garage to work in?","type":"single","applies_to":[],"options":[{"label":"Standard garage, easy access","effect":{"type":"multiply","value":0.9}},{"label":"Tight garage or high ceiling","effect":{"type":"multiply","value":1.15}},{"label":"Detached or hard to reach garage","effect":{"type":"multiply","value":1.25}},{"label":"Not sure","effect":{"type":"widen","value":0.12}}]}],"knobs":{"range_width":50,"price_level":50,"safety_buffer":30,"rush_premium":50,"rounding":60,"detail_shown":50},"toggles":{"contact_before_result":false,"show_timeline":true,"show_drivers":true,"timeline_style":"about"},"calibration":{"per_service":{},"last_trained":null,"rounds":0},"lead_capture":{"webhook_url":"","fields":["name","email","phone"],"consent_text":"","watch_list":[]},"result_copy":{"headline":"Your estimated garage door price range","disclaimer":"This is an estimate, not a final quote. Your exact price depends on the details, which we go through with you before any work starts.","cta_label":"Book your free call"}},"generic-service":{"kit_version":"1.2","business":{"name":"Sample Service Co.","niche":"generic-service","tagline":"See your price range in about a minute","currency":"USD","currency_symbol":"$","unit":"price","hourly_rate":null,"booking_url":"","logo_url":"","brand_color":"#64748b","phone":"","service_area":""},"services":[{"key":"basic_service_call","label":"Basic service call","lo":80,"hi":200,"days_lo":1,"days_hi":1,"help":"A standard visit for a simple job","example_data":true},{"key":"standard_job","label":"Standard job","lo":200,"hi":600,"days_lo":1,"days_hi":2,"help":"A typical job for most customers","example_data":true},{"key":"large_project","label":"Large project","lo":1500,"hi":5000,"days_lo":2,"days_hi":5,"help":"A bigger job that takes more time","example_data":true},{"key":"repair_visit","label":"Repair visit","lo":100,"hi":350,"days_lo":1,"days_hi":1,"help":"Fixing an existing problem","example_data":true},{"key":"maintenance_plan","label":"Maintenance plan visit","lo":75,"hi":150,"days_lo":1,"days_hi":1,"help":"A routine upkeep visit","example_data":true}],"allow_multiple_services":true,"questions":[{"key":"urgency","label":"How soon do you need this done?","type":"single","applies_to":[],"options":[{"label":"No rush, flexible","effect":{"type":"multiply","value":0.9}},{"label":"Within a few days","effect":{"type":"multiply","value":1}},{"label":"Need it done fast","effect":{"type":"multiply","value":1.25}},{"label":"Not sure","effect":{"type":"widen","value":0.1}}],"role":"urgency"},{"key":"job_size","label":"How big is the job?","type":"single","applies_to":["standard_job","large_project"],"options":[{"label":"Small job","effect":{"type":"multiply","value":0.9}},{"label":"Medium job","effect":{"type":"multiply","value":1.05}},{"label":"Large job","effect":{"type":"multiply","value":1.3}},{"label":"Not sure","effect":{"type":"widen","value":0.12}}]},{"key":"access_difficulty","label":"How easy is it to access the work area?","type":"single","applies_to":[],"options":[{"label":"Easy access","effect":{"type":"multiply","value":0.9}},{"label":"Somewhat difficult access","effect":{"type":"multiply","value":1.15}},{"label":"Very difficult access","effect":{"type":"multiply","value":1.3}},{"label":"Not sure","effect":{"type":"widen","value":0.12}}]}],"knobs":{"range_width":50,"price_level":50,"safety_buffer":30,"rush_premium":50,"rounding":50,"detail_shown":50},"toggles":{"contact_before_result":false,"show_timeline":true,"show_drivers":true,"timeline_style":"about"},"calibration":{"per_service":{},"last_trained":null,"rounds":0},"lead_capture":{"webhook_url":"","fields":["name","email","phone"],"consent_text":"","watch_list":[]},"result_copy":{"headline":"Your estimated price range","disclaimer":"This is an estimate, not a final quote. Your exact price depends on the details, which we go through with you before any work starts.","cta_label":"Book your free call"}},"hvac":{"kit_version":"1.2","business":{"name":"Northlake Heating & Air","niche":"hvac","tagline":"Get a real price range in 60 seconds","currency":"USD","currency_symbol":"$","unit":"price","hourly_rate":null,"booking_url":"","logo_url":"","brand_color":"#1d4ed8","phone":"","service_area":""},"services":[{"key":"ac_repair","label":"AC repair","lo":150,"hi":650,"days_lo":1,"days_hi":2,"help":"Most repairs are same or next day","example_data":true},{"key":"furnace_repair","label":"Furnace repair","lo":150,"hi":700,"days_lo":1,"days_hi":2,"help":"Most repairs are same or next day","example_data":true},{"key":"ac_install","label":"AC install or replace","lo":4500,"hi":9500,"days_lo":1,"days_hi":3,"help":"A full AC install usually takes one to three days","example_data":true},{"key":"furnace_install","label":"Furnace install","lo":3800,"hi":7500,"days_lo":1,"days_hi":3,"help":"A new furnace usually goes in within a few days","example_data":true},{"key":"full_system_replace","label":"Full system replace","lo":8000,"hi":16000,"days_lo":1,"days_hi":4,"help":"Replacing your whole heating and cooling system","example_data":true},{"key":"duct_cleaning","label":"Duct cleaning","lo":350,"hi":900,"days_lo":1,"days_hi":1,"help":"A whole home duct cleaning finishes in one visit","example_data":true},{"key":"maintenance_tuneup","label":"Maintenance tune-up","lo":89,"hi":199,"days_lo":1,"days_hi":1,"help":"A quick seasonal check to keep your system running well","example_data":true},{"key":"thermostat_install","label":"Thermostat install","lo":200,"hi":600,"days_lo":1,"days_hi":1,"help":"Includes a smart or programmable thermostat","example_data":true}],"allow_multiple_services":true,"questions":[{"key":"urgency","label":"How soon do you need this done?","type":"single","applies_to":[],"options":[{"label":"No rush, this week is fine","effect":{"type":"multiply","value":0.9}},{"label":"Soon, within a few days","effect":{"type":"multiply","value":1}},{"label":"Emergency, I need it today","effect":{"type":"multiply","value":1.3}},{"label":"Not sure","effect":{"type":"widen","value":0.1}}],"role":"urgency"},{"key":"home_size","label":"How big is your home?","type":"single","applies_to":["ac_install","furnace_install","full_system_replace"],"options":[{"label":"Under 1,500 sq ft","effect":{"type":"multiply","value":0.9}},{"label":"1,500 to 2,500 sq ft","effect":{"type":"multiply","value":1}},{"label":"Over 2,500 sq ft","effect":{"type":"multiply","value":1.21}},{"label":"Not sure","effect":{"type":"widen","value":0.1}}]},{"key":"system_age","label":"How old is your current system?","type":"single","applies_to":["ac_repair","furnace_repair","maintenance_tuneup"],"options":[{"label":"Less than 5 years","effect":{"type":"multiply","value":0.85}},{"label":"5 to 12 years","effect":{"type":"multiply","value":1}},{"label":"Over 12 years","effect":{"type":"multiply","value":1.17}},{"label":"Not sure","effect":{"type":"widen","value":0.1}}]},{"key":"access_difficulty","label":"How easy is it to get to your AC or furnace?","type":"single","applies_to":[],"options":[{"label":"Easy access, attic or closet on the ground floor","effect":{"type":"multiply","value":0.9}},{"label":"Tricky access, crawl space or tight attic","effect":{"type":"multiply","value":1.13}},{"label":"Rooftop or hard to reach unit","effect":{"type":"multiply","value":1.25}},{"label":"Not sure","effect":{"type":"widen","value":0.12}}]},{"key":"ductwork_condition","label":"What shape is your ductwork in?","type":"single","applies_to":["ac_install","furnace_install","full_system_replace","duct_cleaning"],"options":[{"label":"Good shape, no known issues","effect":{"type":"multiply","value":0.95}},{"label":"Needs some repair","effect":{"type":"multiply","value":1.13}},{"label":"Not sure","effect":{"type":"widen","value":0.15}}]}],"knobs":{"range_width":50,"price_level":50,"safety_buffer":30,"rush_premium":50,"rounding":60,"detail_shown":50},"toggles":{"contact_before_result":false,"show_timeline":true,"show_drivers":true,"timeline_style":"about"},"calibration":{"per_service":{},"last_trained":null,"rounds":0},"lead_capture":{"webhook_url":"","fields":["name","email","phone"],"consent_text":"","watch_list":[]},"result_copy":{"headline":"Your estimated HVAC price range","disclaimer":"This is an estimate, not a final quote. Your exact price depends on the details, which we go through with you before any work starts.","cta_label":"Book your free call"}},"landscaping":{"kit_version":"1.2","business":{"name":"Green Acre Landscaping","niche":"landscaping","tagline":"A real price range for your yard project","currency":"USD","currency_symbol":"$","unit":"price","hourly_rate":null,"booking_url":"","logo_url":"","brand_color":"#15803d","phone":"","service_area":""},"services":[{"key":"lawn_mowing","label":"Lawn mowing and edging","lo":45,"hi":90,"days_lo":1,"days_hi":1,"help":"A single mow and edge visit","example_data":true},{"key":"lawn_care_program","label":"Seasonal lawn care program","lo":300,"hi":900,"days_lo":1,"days_hi":1,"help":"Feeding and weed control for the season","example_data":true},{"key":"tree_trimming","label":"Tree trimming or removal","lo":300,"hi":2500,"days_lo":1,"days_hi":2,"help":"Depends heavily on tree size","example_data":true},{"key":"sod_install","label":"Sod installation","lo":1500,"hi":5000,"days_lo":1,"days_hi":3,"help":"Fresh sod laid over your yard","example_data":true},{"key":"irrigation_install","label":"Irrigation system installation","lo":2500,"hi":6500,"days_lo":2,"days_hi":4,"help":"A sprinkler system for your yard","example_data":true},{"key":"landscape_design","label":"Landscape design and planting","lo":2000,"hi":8000,"days_lo":2,"days_hi":5,"help":"A custom design with new plantings","example_data":true}],"allow_multiple_services":true,"questions":[{"key":"urgency","label":"How soon do you need this done?","type":"single","applies_to":[],"options":[{"label":"Flexible, whenever works","effect":{"type":"multiply","value":0.9}},{"label":"Within a couple weeks","effect":{"type":"multiply","value":1}},{"label":"Need it done fast","effect":{"type":"multiply","value":1.2}},{"label":"Not sure","effect":{"type":"widen","value":0.1}}],"role":"urgency"},{"key":"yard_size","label":"How big is your yard?","type":"single","applies_to":["lawn_mowing","lawn_care_program","sod_install","irrigation_install"],"options":[{"label":"Small yard, under a quarter acre","effect":{"type":"multiply","value":0.85}},{"label":"Medium yard, a quarter to half acre","effect":{"type":"multiply","value":1}},{"label":"Large yard, over half an acre","effect":{"type":"multiply","value":1.3}},{"label":"Not sure","effect":{"type":"widen","value":0.12}}]},{"key":"terrain_access","label":"How easy is your yard to work in?","type":"single","applies_to":[],"options":[{"label":"Flat and easy to access","effect":{"type":"multiply","value":0.9}},{"label":"Some slopes or tight access","effect":{"type":"multiply","value":1.15}},{"label":"Steep or very hard to reach","effect":{"type":"multiply","value":1.3}},{"label":"Not sure","effect":{"type":"widen","value":0.12}}]},{"key":"tree_size","label":"How big is the tree?","type":"single","applies_to":["tree_trimming"],"options":[{"label":"Small, under 20 feet","effect":{"type":"multiply","value":0.85}},{"label":"Medium, 20 to 40 feet","effect":{"type":"multiply","value":1}},{"label":"Large, over 40 feet","effect":{"type":"multiply","value":1.4}},{"label":"Not sure","effect":{"type":"widen","value":0.15}}]}],"knobs":{"range_width":50,"price_level":50,"safety_buffer":30,"rush_premium":50,"rounding":55,"detail_shown":50},"toggles":{"contact_before_result":false,"show_timeline":true,"show_drivers":true,"timeline_style":"about"},"calibration":{"per_service":{},"last_trained":null,"rounds":0},"lead_capture":{"webhook_url":"","fields":["name","email","phone"],"consent_text":"","watch_list":[]},"result_copy":{"headline":"Your estimated landscaping price range","disclaimer":"This is an estimate, not a final quote. Your exact price depends on the details, which we go through with you before any work starts.","cta_label":"Book your free call"}},"painting":{"kit_version":"1.2","business":{"name":"True Coat Painting","niche":"painting","tagline":"See your painting price range in a minute","currency":"USD","currency_symbol":"$","unit":"price","hourly_rate":null,"booking_url":"","logo_url":"","brand_color":"#9333ea","phone":"","service_area":""},"services":[{"key":"interior_room","label":"Interior room painting","lo":300,"hi":800,"days_lo":1,"days_hi":1,"help":"One room, walls and trim","example_data":true},{"key":"interior_whole_home","label":"Whole interior painting","lo":2500,"hi":6500,"days_lo":2,"days_hi":4,"help":"Every room inside your home","example_data":true},{"key":"exterior_painting","label":"Exterior house painting","lo":3500,"hi":9000,"days_lo":2,"days_hi":5,"help":"A full exterior repaint","example_data":true},{"key":"cabinet_refinish","label":"Cabinet refinishing","lo":1800,"hi":4500,"days_lo":2,"days_hi":3,"help":"New finish for kitchen or bath cabinets","example_data":true},{"key":"deck_staining","label":"Deck or fence staining","lo":400,"hi":1200,"days_lo":1,"days_hi":2,"help":"Cleaning and staining wood surfaces","example_data":true}],"allow_multiple_services":true,"questions":[{"key":"urgency","label":"How soon do you need this done?","type":"single","applies_to":[],"options":[{"label":"Flexible timing","effect":{"type":"multiply","value":0.9}},{"label":"Within a couple weeks","effect":{"type":"multiply","value":1}},{"label":"Need it done soon","effect":{"type":"multiply","value":1.14}},{"label":"Not sure","effect":{"type":"widen","value":0.1}}],"role":"urgency"},{"key":"home_size","label":"How big is your home?","type":"single","applies_to":["interior_whole_home","exterior_painting"],"options":[{"label":"Under 1,500 sq ft","effect":{"type":"multiply","value":0.9}},{"label":"1,500 to 2,800 sq ft","effect":{"type":"multiply","value":1}},{"label":"Over 2,800 sq ft","effect":{"type":"multiply","value":1.28}},{"label":"Not sure","effect":{"type":"widen","value":0.12}}]},{"key":"surface_condition","label":"What shape are the surfaces in?","type":"single","applies_to":["interior_whole_home","exterior_painting","deck_staining"],"options":[{"label":"Good condition, just needs a fresh coat","effect":{"type":"multiply","value":0.9}},{"label":"Some repairs or prep needed","effect":{"type":"multiply","value":1.09}},{"label":"Heavy prep, peeling or damage","effect":{"type":"multiply","value":1.28}},{"label":"Not sure","effect":{"type":"widen","value":0.15}}]},{"key":"paint_quality","label":"What level of paint do you want?","type":"single","applies_to":[],"options":[{"label":"Standard paint","effect":{"type":"multiply","value":0.95}},{"label":"Premium paint","effect":{"type":"multiply","value":1.09}},{"label":"Designer or specialty finish","effect":{"type":"multiply","value":1.23}},{"label":"Not sure","effect":{"type":"widen","value":0.1}}]}],"knobs":{"range_width":50,"price_level":50,"safety_buffer":30,"rush_premium":50,"rounding":60,"detail_shown":50},"toggles":{"contact_before_result":false,"show_timeline":true,"show_drivers":true,"timeline_style":"about"},"calibration":{"per_service":{},"last_trained":null,"rounds":0},"lead_capture":{"webhook_url":"","fields":["name","email","phone"],"consent_text":"","watch_list":[]},"result_copy":{"headline":"Your estimated painting price range","disclaimer":"This is an estimate, not a final quote. Your exact price depends on the details, which we go through with you before any work starts.","cta_label":"Book your free call"}},"pest-control":{"kit_version":"1.2","business":{"name":"Guardian Pest Solutions","niche":"pest-control","tagline":"A quick price range before your pest visit","currency":"USD","currency_symbol":"$","unit":"price","hourly_rate":null,"booking_url":"","logo_url":"","brand_color":"#b91c1c","phone":"","service_area":""},"services":[{"key":"general_pest_treatment","label":"General pest treatment","lo":100,"hi":300,"days_lo":1,"days_hi":1,"help":"Covers common household pests","example_data":true},{"key":"termite_treatment","label":"Termite treatment","lo":800,"hi":2800,"days_lo":1,"days_hi":2,"help":"Treatment for an active termite issue","example_data":true},{"key":"rodent_control","label":"Rodent control and exclusion","lo":250,"hi":800,"days_lo":1,"days_hi":2,"help":"Trapping plus sealing entry points","example_data":true},{"key":"mosquito_treatment","label":"Mosquito yard treatment","lo":90,"hi":250,"days_lo":1,"days_hi":1,"help":"A yard spray to cut down mosquitoes","example_data":true},{"key":"bed_bug_treatment","label":"Bed bug treatment","lo":400,"hi":1500,"days_lo":1,"days_hi":2,"help":"Treatment for bed bugs in the home","example_data":true}],"allow_multiple_services":true,"questions":[{"key":"urgency","label":"How soon do you need this done?","type":"single","applies_to":[],"options":[{"label":"No rush, a routine visit","effect":{"type":"multiply","value":0.9}},{"label":"Within a few days","effect":{"type":"multiply","value":1}},{"label":"Active infestation, need it fast","effect":{"type":"multiply","value":1.23}},{"label":"Not sure","effect":{"type":"widen","value":0.1}}],"role":"urgency"},{"key":"home_size","label":"How big is your home?","type":"single","applies_to":["general_pest_treatment","termite_treatment","mosquito_treatment"],"options":[{"label":"Under 1,500 sq ft","effect":{"type":"multiply","value":0.9}},{"label":"1,500 to 2,800 sq ft","effect":{"type":"multiply","value":1}},{"label":"Over 2,800 sq ft","effect":{"type":"multiply","value":1.2}},{"label":"Not sure","effect":{"type":"widen","value":0.12}}]},{"key":"infestation_severity","label":"How bad is the problem right now?","type":"single","applies_to":["termite_treatment","rodent_control","bed_bug_treatment"],"options":[{"label":"Just a few signs, caught early","effect":{"type":"multiply","value":0.9}},{"label":"Noticeable activity","effect":{"type":"multiply","value":1.08}},{"label":"Widespread or long standing","effect":{"type":"multiply","value":1.27}},{"label":"Not sure","effect":{"type":"widen","value":0.15}}]},{"key":"access_difficulty","label":"How easy is it to access the problem area?","type":"single","applies_to":[],"options":[{"label":"Easy access to attic, crawl space, and yard","effect":{"type":"multiply","value":0.9}},{"label":"Some areas hard to reach","effect":{"type":"multiply","value":1.12}},{"label":"Very limited access","effect":{"type":"multiply","value":1.2}},{"label":"Not sure","effect":{"type":"widen","value":0.12}}]}],"knobs":{"range_width":50,"price_level":50,"safety_buffer":30,"rush_premium":50,"rounding":50,"detail_shown":50},"toggles":{"contact_before_result":false,"show_timeline":true,"show_drivers":true,"timeline_style":"about"},"calibration":{"per_service":{},"last_trained":null,"rounds":0},"lead_capture":{"webhook_url":"","fields":["name","email","phone"],"consent_text":"","watch_list":[]},"result_copy":{"headline":"Your estimated pest control price range","disclaimer":"This is an estimate, not a final quote. Your exact price depends on the details, which we go through with you before any work starts.","cta_label":"Book your free call"}},"plumbing":{"kit_version":"1.2","business":{"name":"Cedar Street Plumbing","niche":"plumbing","tagline":"Know your price range before we show up","currency":"USD","currency_symbol":"$","unit":"price","hourly_rate":null,"booking_url":"","logo_url":"","brand_color":"#0e7490","phone":"","service_area":""},"services":[{"key":"drain_clog","label":"Drain or clog clearing","lo":125,"hi":350,"days_lo":1,"days_hi":1,"help":"Most clogs clear in one visit","example_data":true},{"key":"water_heater_repair","label":"Water heater repair","lo":150,"hi":500,"days_lo":1,"days_hi":1,"help":"Common fixes for no hot water or leaks","example_data":true},{"key":"water_heater_install","label":"Water heater replacement","lo":1200,"hi":3200,"days_lo":1,"days_hi":2,"help":"Includes removing the old unit","example_data":true},{"key":"pipe_repair","label":"Pipe leak repair","lo":200,"hi":900,"days_lo":1,"days_hi":2,"help":"Covers most single pipe leaks","example_data":true},{"key":"fixture_install","label":"Faucet or fixture install","lo":150,"hi":450,"days_lo":1,"days_hi":1,"help":"Sinks, faucets, and toilets","example_data":true},{"key":"repipe","label":"Whole home repipe","lo":4000,"hi":12000,"days_lo":2,"days_hi":5,"help":"Replacing old pipes throughout the home","example_data":true}],"allow_multiple_services":true,"questions":[{"key":"urgency","label":"How soon do you need this fixed?","type":"single","applies_to":[],"options":[{"label":"No rush, this week is fine","effect":{"type":"multiply","value":0.9}},{"label":"Soon, within a few days","effect":{"type":"multiply","value":1}},{"label":"Emergency, active leak or no water","effect":{"type":"multiply","value":1.31}},{"label":"Not sure","effect":{"type":"widen","value":0.1}}],"role":"urgency"},{"key":"home_age","label":"How old is your home?","type":"single","applies_to":["pipe_repair","repipe","water_heater_install"],"options":[{"label":"Built in the last 15 years","effect":{"type":"multiply","value":0.9}},{"label":"15 to 40 years old","effect":{"type":"multiply","value":1.04}},{"label":"Over 40 years old","effect":{"type":"multiply","value":1.2}},{"label":"Not sure","effect":{"type":"widen","value":0.12}}]},{"key":"access_difficulty","label":"How easy is it to reach the pipes or unit?","type":"single","applies_to":[],"options":[{"label":"Easy to reach","effect":{"type":"multiply","value":0.9}},{"label":"Under a slab or behind a wall","effect":{"type":"multiply","value":1.16}},{"label":"Crawl space or tight area","effect":{"type":"multiply","value":1.23}},{"label":"Not sure","effect":{"type":"widen","value":0.12}}]},{"key":"num_bathrooms","label":"How many bathrooms does your home have?","type":"single","applies_to":["repipe"],"options":[{"label":"1 bathroom","effect":{"type":"multiply","value":0.9}},{"label":"2 to 3 bathrooms","effect":{"type":"multiply","value":1}},{"label":"4 or more bathrooms","effect":{"type":"multiply","value":1.16}},{"label":"Not sure","effect":{"type":"widen","value":0.1}}]}],"knobs":{"range_width":50,"price_level":50,"safety_buffer":30,"rush_premium":50,"rounding":55,"detail_shown":50},"toggles":{"contact_before_result":false,"show_timeline":true,"show_drivers":true,"timeline_style":"about"},"calibration":{"per_service":{},"last_trained":null,"rounds":0},"lead_capture":{"webhook_url":"","fields":["name","email","phone"],"consent_text":"","watch_list":[]},"result_copy":{"headline":"Your estimated plumbing price range","disclaimer":"This is an estimate, not a final quote. Your exact price depends on the details, which we go through with you before any work starts.","cta_label":"Book your free call"}},"roofing":{"kit_version":"1.2","business":{"name":"Ironwood Roofing Co.","niche":"roofing","tagline":"See a real price range before you book an inspection","currency":"USD","currency_symbol":"$","unit":"price","hourly_rate":null,"booking_url":"","logo_url":"","brand_color":"#7c2d12","phone":"","service_area":""},"services":[{"key":"roof_repair","label":"Roof leak repair","lo":300,"hi":1200,"days_lo":1,"days_hi":2,"help":"Most leak repairs finish in a day or two","example_data":true},{"key":"roof_replace_asphalt","label":"Asphalt shingle roof replacement","lo":8000,"hi":16000,"days_lo":2,"days_hi":4,"help":"A full tear off and reroof","example_data":true},{"key":"roof_replace_metal","label":"Metal roof replacement","lo":14000,"hi":28000,"days_lo":3,"days_hi":6,"help":"A longer lasting metal roof system","example_data":true},{"key":"gutter_install","label":"Gutter installation","lo":1200,"hi":3500,"days_lo":1,"days_hi":2,"help":"New gutters around your whole home","example_data":true},{"key":"gutter_repair","label":"Gutter repair","lo":150,"hi":500,"days_lo":1,"days_hi":1,"help":"Fixing sagging or leaking gutters","example_data":true},{"key":"roof_inspection","label":"Roof inspection","lo":150,"hi":350,"days_lo":1,"days_hi":1,"help":"A full check of your roof condition","example_data":true}],"allow_multiple_services":true,"questions":[{"key":"urgency","label":"How soon do you need this done?","type":"single","applies_to":[],"options":[{"label":"Just want a quote for now","effect":{"type":"multiply","value":0.9}},{"label":"Noticed a problem recently","effect":{"type":"multiply","value":1}},{"label":"Active leak, I need help now","effect":{"type":"multiply","value":1.34}},{"label":"Not sure","effect":{"type":"widen","value":0.1}}],"role":"urgency"},{"key":"roof_size","label":"How big is your home?","type":"single","applies_to":["roof_replace_asphalt","roof_replace_metal","gutter_install"],"options":[{"label":"Small home, under 1,500 sq ft","effect":{"type":"multiply","value":0.9}},{"label":"Medium home, 1,500 to 2,800 sq ft","effect":{"type":"multiply","value":1}},{"label":"Large home, over 2,800 sq ft","effect":{"type":"multiply","value":1.25}},{"label":"Not sure","effect":{"type":"widen","value":0.12}}]},{"key":"roof_age","label":"How old is your roof?","type":"single","applies_to":["roof_repair","roof_inspection"],"options":[{"label":"Under 10 years old","effect":{"type":"multiply","value":0.9}},{"label":"10 to 20 years old","effect":{"type":"multiply","value":1.04}},{"label":"Over 20 years old","effect":{"type":"multiply","value":1.17}},{"label":"Not sure","effect":{"type":"widen","value":0.1}}]},{"key":"roof_pitch","label":"How steep is your roof?","type":"single","applies_to":[],"options":[{"label":"Low slope, easy to walk on","effect":{"type":"multiply","value":0.9}},{"label":"Steep pitch","effect":{"type":"multiply","value":1.17}},{"label":"Multiple stories or very steep","effect":{"type":"multiply","value":1.3}},{"label":"Not sure","effect":{"type":"widen","value":0.12}}]}],"knobs":{"range_width":50,"price_level":50,"safety_buffer":30,"rush_premium":50,"rounding":65,"detail_shown":55},"toggles":{"contact_before_result":false,"show_timeline":true,"show_drivers":true,"timeline_style":"about"},"calibration":{"per_service":{},"last_trained":null,"rounds":0},"lead_capture":{"webhook_url":"","fields":["name","email","phone"],"consent_text":"","watch_list":[]},"result_copy":{"headline":"Your estimated roofing price range","disclaimer":"This is an estimate, not a final quote. Your exact price depends on the details, which we go through with you before any work starts.","cta_label":"Book your free call"}},"web-design":{"kit_version":"1.2","business":{"name":"Pixel Harbor Web Studio","niche":"web-design","tagline":"See your price and hours before you book a call","currency":"USD","currency_symbol":"$","unit":"both","hourly_rate":95,"booking_url":"","logo_url":"","brand_color":"#0891b2","phone":"","service_area":""},"services":[{"key":"landing_page","label":"Single landing page","lo":6,"hi":14,"days_lo":2,"days_hi":4,"help":"One focused page built and styled","example_data":true},{"key":"full_website","label":"Full multi page website","lo":20,"hi":50,"days_lo":5,"days_hi":12,"help":"A complete website with several pages","example_data":true},{"key":"ecommerce_site","label":"Ecommerce website","lo":35,"hi":80,"days_lo":7,"days_hi":18,"help":"A full online store","example_data":true},{"key":"website_redesign","label":"Website redesign","lo":15,"hi":40,"days_lo":4,"days_hi":10,"help":"A refresh of your existing site","example_data":true},{"key":"seo_setup","label":"On page SEO setup","lo":4,"hi":10,"days_lo":1,"days_hi":3,"help":"Getting your site set up to be found","example_data":true}],"allow_multiple_services":false,"questions":[{"key":"urgency","label":"How soon do you want to launch?","type":"single","applies_to":[],"options":[{"label":"Flexible launch date","effect":{"type":"multiply","value":0.9}},{"label":"Within a month","effect":{"type":"multiply","value":1}},{"label":"Need it live fast","effect":{"type":"multiply","value":1.2}},{"label":"Not sure","effect":{"type":"widen","value":0.1}}],"role":"urgency"},{"key":"page_count","label":"About how many pages do you need?","type":"single","applies_to":["full_website","website_redesign","ecommerce_site"],"options":[{"label":"Under 5 pages","effect":{"type":"multiply","value":0.9}},{"label":"5 to 10 pages","effect":{"type":"multiply","value":1}},{"label":"Over 10 pages","effect":{"type":"multiply","value":1.23}},{"label":"Not sure","effect":{"type":"widen","value":0.12}}]},{"key":"design_complexity","label":"What level of design do you want?","type":"single","applies_to":[],"options":[{"label":"A simple template","effect":{"type":"multiply","value":0.9}},{"label":"Custom design, moderate complexity","effect":{"type":"multiply","value":1.12}},{"label":"Fully custom design","effect":{"type":"multiply","value":1.27}},{"label":"Not sure","effect":{"type":"widen","value":0.15}}]},{"key":"content_ready","label":"Is your content ready to go?","type":"single","applies_to":["full_website","website_redesign","ecommerce_site","landing_page"],"options":[{"label":"Content and images are ready","effect":{"type":"multiply","value":0.9}},{"label":"Some content is ready","effect":{"type":"multiply","value":1.04}},{"label":"Need help writing content","effect":{"type":"multiply","value":1.16}},{"label":"Not sure","effect":{"type":"widen","value":0.12}}]}],"knobs":{"range_width":50,"price_level":50,"safety_buffer":30,"rush_premium":50,"rounding":55,"detail_shown":55},"toggles":{"contact_before_result":false,"show_timeline":true,"show_drivers":true,"timeline_style":"about"},"calibration":{"per_service":{},"last_trained":null,"rounds":0},"lead_capture":{"webhook_url":"","fields":["name","email","phone"],"consent_text":"","watch_list":[]},"result_copy":{"headline":"Your estimated price and hours","disclaimer":"This is an estimate, not a final quote. Your exact price depends on the details, which we go through with you before any work starts.","cta_label":"Book your free call"}}};
+  var SEQ = JSON.parse(document.getElementById('FOLLOWUP_SEQUENCE').textContent);
+  var SAMPLE_CONTACT = { name: 'Sam Rivera', email: 'sam@example.com', phone: '555 0100' };
+  var LABELS = { hvac: 'HVAC' };
+  var state = { key: 'hvac', cfg: null, from: '' };
 
-/* ------------------------------------------------------------------ *
- * Boot: read the config. If anything is wrong, the owner sees a
- * friendly message. A blank page is never acceptable.
- * ------------------------------------------------------------------ */
-var root = document.getElementById('root');
-
-/* Build constants. The downloaded funnel keeps RUNNER false. The hosted live
- * runner (live-runner/index.html) is this same file with RUNNER true: it reads
- * its settings from the link itself and always shows the kit footer. */
-var RUNNER = false;
-var KIT_URL = "https://gosmarterflow.com";
-var REPORT_MAILTO = 'mailto:jonathan@gosmarterflow.com?subject=' + encodeURIComponent('Report a live funnel');
-
-function esc(s){
-  return String(s===null||s===undefined?'':s)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-}
-
-/* Only plain https links ever reach an href or a src. */
-function safeHref(u){
-  return (typeof u === 'string' && /^https:\/\/[^\s"'<>`\\]+$/i.test(u)) ? u : '';
-}
-
-function panic(title, points){
-  var li = '';
-  for (var i=0;i<points.length;i++) li += '<li>'+esc(points[i])+'</li>';
-  root.innerHTML = '<div class="panic"><h2>'+esc(title)+'</h2>'
-    + '<p style="margin:0 0 10px;font-size:14.5px;color:#4b5563">Your visitors should not see this page. Here is how to fix it:</p>'
-    + '<ol style="margin:0;padding-left:20px">'+li+'</ol>'
-    + '<p style="margin:14px 0 0;font-size:13px;color:#6b7280">Open your Estimate Funnel Kit studio, fix the point above, then download this page again.</p></div>';
-  postHeight();
-}
-
-/* The live runner's footer. It is not in the settings, so no link can remove it. */
-function kitFooterHtml(){
-  if (!RUNNER) return '';
-  return '<div class="kitfoot"><a href="'+esc(safeHref(KIT_URL))+'" target="_blank" rel="noopener">Built with the Estimate Funnel Kit</a>'
-    + ' &middot; <a href="'+esc(REPORT_MAILTO)+'">Report this page</a></div>';
-}
-
-/* What a visitor sees when a live link is damaged, too big, too old or hostile. */
-function broken(){
-  root.innerHTML = '<div class="panic" id="broken"><h2>This link is broken or out of date.</h2>'
-    + '<p style="margin:0;font-size:15px;color:#4b5563">Ask the business for a fresh link.</p></div>'
-    + kitFooterHtml();
-  try { document.title = 'Link not available'; } catch(e){}
-  postHeight();
-}
-
-var RAW = '';
-try { RAW = RUNNER ? '' : (document.getElementById('FUNNEL_CONFIG').textContent || ''); } catch(e){ RAW = ''; }
-
-if (typeof EFK === 'undefined') {
-  panic('This page is missing its pricing engine.', [
-    'Download funnel.html again from the Publish tab in your studio.',
-    'Do not copy only part of the file. It has to be the whole file.'
-  ]);
-  return;
-}
-
-var DX = { ok:false, errors:[], config:null };
-var CFG = null;
-
-/* ------------------------------------------------------------------ *
- * State
- * ------------------------------------------------------------------ */
-var LOADED_AT = Date.now();
-var MIN_SECONDS = 4;
-var answers = { services: [], q: {} };
-var contact = { name:'', email:'', phone:'' };
-var stepIndex = 0;
-/* '' (not sent), 'sending', 'sent', 'failed' or 'unknown'. Only 'sent' ever
- * tells the visitor their details went anywhere. */
-var sendState = '';
-var botFlag = false;
-var SELFTEST = false, PREVIEW_RESULT = false;
-try {
-  SELFTEST = /[?&]selftest=1/.test(location.search);
-  PREVIEW_RESULT = /[?&]preview=result/.test(location.search);
-} catch(e){}
-/* the studio's side preview asks for the result screen this way, because an
- * iframe built from srcdoc cannot carry a query string. Never from a live link. */
-try { if (!RUNNER && /"preview_result"\s*:\s*true/.test(RAW)) PREVIEW_RESULT = true; } catch(e){}
-
-var UTM = { utm_source:'', utm_medium:'', utm_campaign:'' };
-try {
-  var qp = new URLSearchParams(location.search);
-  UTM.utm_source = (qp.get('utm_source')||'').slice(0,120);
-  UTM.utm_medium = (qp.get('utm_medium')||'').slice(0,120);
-  UTM.utm_campaign = (qp.get('utm_campaign')||'').slice(0,120);
-} catch(e){}
-
-function applyBrand(){
-  try {
-    var col = CFG.business.brand_color;
-    if (!/^#[0-9a-fA-F]{6}$/.test(col)) return;
-    document.documentElement.style.setProperty('--brand', col);
-    var hex = col.replace('#','');
-    var r = parseInt(hex.slice(0,2),16), g = parseInt(hex.slice(2,4),16), b = parseInt(hex.slice(4,6),16);
-    if (isFinite(r)&&isFinite(g)&&isFinite(b)) {
-      document.documentElement.style.setProperty('--brand-soft','rgba('+r+','+g+','+b+',.10)');
-      document.documentElement.style.setProperty('--brand-line','rgba('+r+','+g+','+b+',.30)');
-    }
-  } catch(e){}
-  try { document.title = (CFG.business.name || 'Instant estimate') + ' - instant estimate'; } catch(e){}
-}
-
-function mode(){ return EFK.leadMode(CFG); }
-function bizName(){ return (CFG && CFG.business && CFG.business.name) || 'the business'; }
-
-/* ------------------------------------------------------------------ *
- * Step plan
- * ------------------------------------------------------------------ */
-function buildSteps(){
-  var steps = [{ kind:'services' }];
-  var qs = EFK.applicableQuestions(CFG, answers.services);
-  for (var i=0;i<qs.length;i++) steps.push({ kind:'question', q: qs[i] });
-  if (CFG.toggles.contact_before_result && mode() !== 'none') steps.push({ kind:'contact' });
-  steps.push({ kind:'result' });
-  return steps;
-}
-
-function currentSteps(){ return buildSteps(); }
-
-/* ------------------------------------------------------------------ *
- * Render
- * ------------------------------------------------------------------ */
-function header(){
-  var b = CFG.business;
-  var logo = safeHref(b.logo_url);
-  var left = logo
-    ? '<img class="logo" id="bizlogo" src="'+esc(logo)+'" alt="'+esc(b.name)+'">'
-      + '<span class="bizname" id="bizfallback" style="display:none">'+esc(b.name)+'</span>'
-    : '<span class="bizname">'+esc(b.name)+'</span>';
-  var right = b.service_area ? '<span class="tag">'+esc(b.service_area)+'</span>' : (b.tagline ? '<span class="tag">'+esc(b.tagline)+'</span>' : '');
-  return '<div class="head">'+left+right+'</div>';
-}
-
-function bannerHtml(){
-  if (!CFG.demo_banner || RUNNER) return '';
-  var link = safeHref(CFG.demo_banner_url)
-    ? ' <a href="'+esc(safeHref(CFG.demo_banner_url))+'" target="_blank" rel="noopener">See how it was built</a>'
-    : '';
-  return '<div class="banner"><span>Demo built with the Estimate Funnel Kit</span>'+link+'</div>';
-}
-
-function render(){
-  var steps = currentSteps();
-  if (stepIndex >= steps.length) stepIndex = steps.length - 1;
-  if (stepIndex < 0) stepIndex = 0;
-  var step = steps[stepIndex];
-  var pct = Math.round(((stepIndex) / Math.max(1, steps.length - 1)) * 100);
-
-  var body = '';
-  if (step.kind === 'services') body = viewServices();
-  else if (step.kind === 'question') body = viewQuestion(step.q);
-  else if (step.kind === 'contact') body = viewContact();
-  else body = viewResult();
-
-  var backBtn = stepIndex > 0 && step.kind !== 'result'
-    ? '<button class="back" type="button" data-act="back">&#8592; Back</button>' : '';
-
-  var counter = step.kind === 'result'
-    ? '<span>All done</span>'
-    : '<span>Step '+(stepIndex+1)+' of '+steps.length+'</span>';
-
-  root.innerHTML = bannerHtml() + '<div class="wrap">' + header()
-    + '<div class="card"><div class="pbar"><i style="width:'+pct+'%"></i></div>'
-    + '<div class="pad fadein">'
-    + '<div class="meta">'+backBtn+counter+'</div>'
-    + body
-    + '</div></div>'
-    + '<div class="foot">'+esc(mode() === 'none'
-        ? 'Your answers stay on this page. Nothing is sent anywhere.'
-        : 'Your answers are only sent if you choose to send them, and only to ' + bizName() + '.')+'</div>'
-    + '</div>' + kitFooterHtml();
-
-  wireLogo();
-  wire(step);
-  focusFirst();
-  postHeight();
-}
-
-function wireLogo(){
-  var lg = root.querySelector('#bizlogo');
-  if (!lg) return;
-  var fail = function(){
-    lg.style.display = 'none';
-    var f = root.querySelector('#bizfallback');
-    if (f) f.style.display = 'inline';
-  };
-  lg.addEventListener('error', fail);
-  if (lg.complete && lg.naturalWidth === 0 && lg.getAttribute('src')) fail();
-}
-
-function focusFirst(){
-  if (SELFTEST) return;
-  try {
-    var el = root.querySelector('.opt, .inp');
-    if (el && stepIndex > 0) el.focus({ preventScroll:true });
-  } catch(e){}
-}
-
-/* ---- step 1: pick the service ---- */
-function viewServices(){
-  var multi = CFG.allow_multiple_services !== false;
-  var h = '<h1 class="q">What do you need help with?</h1>'
-    + '<p class="sub">'+(multi ? 'Pick everything that applies.' : 'Pick the one that fits best.')+'</p>'
-    + '<div class="opts" role="group">';
-  for (var i=0;i<CFG.services.length;i++){
-    var s = CFG.services[i];
-    var on = answers.services.indexOf(s.key) !== -1;
-    h += '<button class="opt'+(on?' sel':'')+'" type="button" data-act="svc" data-key="'+esc(s.key)+'">'
-       + esc(s.label)
-       + (s.help ? '<span class="oh">'+esc(s.help)+'</span>' : '')
-       + '<span class="tick">'+(on?'&#10003;':'')+'</span></button>';
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
   }
-  h += '</div>';
-  h += '<div class="err" id="err">Pick at least one thing so we can price it.</div>';
-  h += '<button class="btn" type="button" data-act="next"'+(answers.services.length?'':' disabled')+'>Continue</button>';
-  return h;
-}
+  function nicheLabel(key) {
+    if (LABELS[key]) return LABELS[key];
+    return key.split('-').map(function (w) { return w === 'highlevel' ? 'HighLevel' : w.charAt(0).toUpperCase() + w.slice(1); }).join(' ');
+  }
 
-/* ---- a question ---- */
-function viewQuestion(q){
-  var h = '<h1 class="q">'+esc(q.label)+'</h1>';
-  if (q.help) h += '<p class="sub">'+esc(q.help)+'</p>';
-  else if (q.type === 'multi') h += '<p class="sub">Pick everything that applies.</p>';
+  /* Plain words for a stretch of minutes: "2 minutes", "1 hour", "3 days", "2 weeks". */
+  function span(min, hoursUpTo) {
+    if (min < 60) return min + (min === 1 ? ' minute' : ' minutes');
+    /* a day less a couple of minutes is still "1 day", the way the guide's Wait steps read */
+    if (min < 1380 || min <= (hoursUpTo || 0)) { var h = Math.round(min / 60); return h + (h === 1 ? ' hour' : ' hours'); }
+    var d = Math.round(min / 1440);
+    if (d % 7 === 0) { var w = d / 7; return w + (w === 1 ? ' week' : ' weeks'); }
+    return d + (d === 1 ? ' day' : ' days');
+  }
+  /* Plain words for a delay in minutes after the lead submits. */
+  function plainTime(min) {
+    if (!min) return 'Right away';
+    return span(min) + ' later';
+  }
+  /* Booking steps hang off a moment instead: booked, the call, a no show, a cancel. */
+  function bookingTime(s) {
+    if (s.anchor === 'before_call') return span(s.delay, 1440) + ' before the call';
+    if (s.anchor === 'no_show') return span(s.delay) + ' after you mark it No Show';
+    if (s.anchor === 'cancel') return s.delay ? span(s.delay) + ' after they cancel' : 'When they cancel';
+    return s.delay ? span(s.delay) + ' after booking' : 'Right away';
+  }
+  var BRANCH = { no_show: 'Only if you mark the call No Show', cancel: 'Only if they cancel' };
 
-  if (q.type === 'number'){
-    var cur = answers.q[q.key];
-    if (cur === undefined) cur = q.min;
-    h += '<div class="fields"><div><label class="fl" for="numin">Enter a number</label>'
-      + '<input class="inp" id="numin" type="number" inputmode="numeric" min="'+q.min+'" max="'+q.max+'" step="'+q.step+'" value="'+esc(cur)+'"></div></div>'
-      + '<div class="err" id="err">Enter a number between '+q.min+' and '+q.max+'.</div>'
-      + '<button class="btn" type="button" data-act="numnext">Continue</button>';
+  /* The sample lead: the Studio's own "Typical job", run through the real engine,
+   * so every number reads exactly as the result card and the webhook show it. */
+  function sampleFor(cfg) {
+    var leads = EFK.sampleLeads(cfg);
+    var typical = leads[1] || leads[0];
+    var p = EFK.payload(cfg, typical.answers, SAMPLE_CONTACT, { page_url: '', submitted_at: new Date().toISOString() });
+    return p;
+  }
+
+  function valueFor(ph, p) {
+    var def = SEQ.placeholders[ph];
+    if (!def) return null;
+    if (def.system === 'appointment_time') return sampleCallTime();
+    var v = String(p[def.from] == null ? '' : p[def.from]);
+    if (def.part === 'first') return v.split(/\s+/)[0] || '';
+    if (def.part === 'rest') return v.split(/\s+/).slice(1).join(' ');
+    return v;
+  }
+  function ownerFill(tok, cfg) {
+    var def = SEQ.owner_fills[tok];
+    var biz = (cfg.business && cfg.business.name) || '';
+    var book = (cfg.business && cfg.business.booking_url) || '';
+    if (def.fill === 'business_name' && biz) return biz;
+    if (def.fill === 'booking_url' && book) return book;
+    return def.shows;
+  }
+
+  var TOKEN_RE = (function () {
+    var toks = Object.keys(SEQ.placeholders).concat(Object.keys(SEQ.owner_fills));
+    toks.sort(function (a, b) { return b.length - a.length; });
+    return new RegExp('(' + toks.map(function (t) { return t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }).join('|') + ')', 'g');
+  })();
+
+  /* Merge one template: escape everything, highlight what the lead fills in. */
+  function merge(text, p, cfg) {
+    if (!text) return '';
+    return String(text).split(TOKEN_RE).map(function (part) {
+      if (SEQ.placeholders[part]) return '<mark class="m">' + esc(valueFor(part, p)) + '</mark>';
+      if (SEQ.owner_fills[part]) return '<span class="of">' + esc(ownerFill(part, cfg)) + '</span>';
+      return esc(part);
+    }).join('');
+  }
+  /* the sample call: two days from now at 10:00, written the way a person would say it */
+  function sampleCallTime() {
+    var d = new Date(); d.setDate(d.getDate() + 2);
+    var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    return days[d.getDay()] + ', ' + months[d.getMonth()] + ' ' + d.getDate() + ' at 10:00 AM';
+  }
+  function firstLines(text, n) {
+    return String(text || '').split('\n').filter(function (l) { return l.trim() !== ''; }).slice(0, n).join('\n');
+  }
+
+  var CHAN = { email: 'EMAIL', sms: 'SMS', task: 'TASK', notify: 'NOTIFY OWNER' };
+
+  function stepCard(s, p, cfg, booking) {
+    var leadName = p.name || 'the lead';
+    var biz = (cfg.business && cfg.business.name) || 'your business';
+    var to = s.to === 'lead' ? 'To the lead: ' + esc(leadName) : 'To you: ' + esc(biz);
+    var when = esc(booking ? bookingTime(s) : plainTime(s.delay));
+    var extra = '';
+    if (s.type === 'task') {
+      when = 'Due ' + esc(plainTime(s.due_in || 0).toLowerCase());
+      extra = '<span class="duesub">created ' + esc(plainTime(s.delay).toLowerCase()) + '</span>';
+      to = 'Assigned to: whoever calls your leads';
+    }
+    var h = '<div class="node step ' + esc(s.type) + '" data-step="' + esc(s.id) + '">';
+    h += '<div class="shead"><span class="chan">' + esc(CHAN[s.type] || s.type.toUpperCase()) + '</span>';
+    h += '<span class="when">' + when + '</span>' + extra;
+    if (s.warning) h += '<span class="warnchip">' + esc(s.warning) + '</span>';
+    h += '<span class="to">' + to + '</span></div>';
+    if (s.subject) h += '<div class="subj">' + merge(s.subject, p, cfg) + '</div>';
+
+    var full = '';
+    if (s.body) {
+      h += '<div class="body short">' + merge(firstLines(s.body, 2), p, cfg) + '</div>';
+      full = merge(s.body, p, cfg);
+    } else if (s.preview_lines) {
+      var lines = s.preview_lines.map(function (l) { return merge(l, p, cfg); });
+      h += '<div class="body short">' + lines.slice(0, 2).join('\n') + '</div>';
+      full = lines.join('\n');
+    }
+    if (s.body_instruction) h += '<p class="instr">The guide says: ' + esc(s.body_instruction.replace(/`/g, '')) + '.</p>';
+    var shortHtml = s.body ? merge(firstLines(s.body, 2), p, cfg) : '';
+    if (full === shortHtml) full = '';
+    if (full) h += '<div class="body full" hidden>' + full + '</div>';
+
+    h += '<div class="sfoot">';
+    if (full) h += '<button class="b sm toggle" type="button" aria-expanded="false">Preview full message</button>';
+    h += '<span class="notes">' + esc(s.notes || '') + '</span></div>';
+    h += '</div>';
     return h;
   }
 
-  h += '<div class="opts" role="group">';
-  for (var i=0;i<q.options.length;i++){
-    var sel;
-    if (q.type === 'multi') {
-      var arr = answers.q[q.key] || [];
-      sel = arr.indexOf(i) !== -1;
-    } else sel = answers.q[q.key] === i;
-    h += '<button class="opt'+(sel?' sel':'')+'" type="button" data-act="opt" data-q="'+esc(q.key)+'" data-i="'+i+'">'
-      + esc(q.options[i].label)
-      + '<span class="tick">'+(sel?'&#10003;':'')+'</span></button>';
-  }
-  h += '</div>';
-  if (q.type === 'multi'){
-    h += '<div class="err" id="err">Pick at least one answer.</div>';
-    h += '<button class="btn" type="button" data-act="next">Continue</button>';
-  }
-  return h;
-}
+  function render() {
+    var cfg = state.cfg;
+    var p = sampleFor(cfg);
+    document.getElementById('sample').innerHTML =
+      '<div><b>Sample lead</b><span>' + esc(p.name) + '</span></div>' +
+      '<div><b>Service</b><span>' + esc(p.services_text || '(none)') + '</span></div>' +
+      '<div><b>Estimate</b><span>' + esc(p.estimate_low_text) + ' to ' + esc(p.estimate_high_text) + '</span></div>' +
+      '<div><b>Timeline</b><span>' + esc(p.timeline_text || '(not shown)') + '</span></div>';
 
-/* ---- contact ---- */
-function viewContact(){
-  var f = CFG.lead_capture.fields;
-  var h = '<h1 class="q">Who is this estimate for?</h1>'
-    + '<p class="sub">'+esc(bizName())+' gets your answers with your estimate. Your number is on the next screen.</p>'
-    + '<div class="fields">';
-  if (f.indexOf('name') !== -1) h += fld('name','Your name','text','Alex Rivera','name');
-  if (f.indexOf('email') !== -1) h += fld('email','Email','email','alex@example.com','email');
-  if (f.indexOf('phone') !== -1) h += fld('phone','Phone (optional)','tel','(555) 012 3456','tel');
-  h += '</div>';
-  h += '<input class="hp" type="text" name="company" id="hp" tabindex="-1" autocomplete="off" aria-hidden="true">';
-  h += '<div class="err" id="err">Add a valid email address so they can reach you.</div>';
-  h += '<button class="btn" type="button" data-act="contact">See my estimate</button>';
-  if (CFG.lead_capture.consent_text) h += '<div class="fine">'+esc(CFG.lead_capture.consent_text)+'</div>';
-  return h;
-}
-
-function fld(key, label, type, ph, ac){
-  return '<div><label class="fl" for="f-'+key+'">'+esc(label)+'</label>'
-    + '<input class="inp" id="f-'+key+'" type="'+type+'" autocomplete="'+ac+'" placeholder="'+esc(ph)+'" value="'+esc(contact[key]||'')+'"></div>';
-}
-
-/* ---- result ---- */
-function viewResult(){
-  var est = EFK.estimate(CFG, answers);
-  var detail = CFG.knobs.detail_shown;
-  var h = '<div class="res-lab">'+esc(CFG.result_copy.headline)+'</div>';
-
-  if (est.unit === 'both' && est.price_lo !== null){
-    h += '<div class="res-num">'+esc(EFK.fmtMoney(est.price_lo, CFG)+' to '+EFK.fmtMoney(est.price_hi, CFG))+'</div>';
-    h += '<div class="res-alt">About '+esc(EFK.fmtHours(est.lo)+' to '+EFK.fmtHours(est.hi))+' hours of work</div>';
-  } else {
-    h += '<div class="res-num">'+esc(est.text)+'</div>';
+    document.getElementById('canvas').innerHTML = canvasHtml(SEQ.trigger, SEQ.steps, p, cfg, false);
+    document.getElementById('endnote').textContent = SEQ.stops_when || '';
+    var bk = SEQ.booking;
+    document.getElementById('canvas-booking').innerHTML = bk ? canvasHtml(bk.trigger, bk.steps, p, cfg, true) : '';
+    document.getElementById('endnote-booking').textContent = (bk && bk.stops_when) || '';
   }
 
-  h += '<div class="chipline">';
-  if (est.services_text) h += '<span class="chip">'+esc(est.services_text)+'</span>';
-  if (CFG.toggles.show_timeline && est.timeline_text) h += '<span class="chip time">'+esc(est.timeline_text)+'</span>';
-  h += '</div>';
-
-  if (CFG.toggles.show_drivers && detail > 33 && est.drivers.length){
-    h += '<div class="sec"><h2>What drives your price</h2>';
-    for (var i=0;i<est.drivers.length && i<8;i++){
-      var d = est.drivers[i];
-      h += '<div class="drv"><div class="dl"><b>'+esc(d.answer)+'</b>'+esc(d.label)+'</div><div class="dv">'+esc(d.detail)+'</div></div>';
+  function canvasHtml(t, steps, p, cfg, booking) {
+    var h = '<div class="node trigger' + (booking ? ' cal' : '') + '" data-step="' + esc(t.id) + '"><div class="k">Trigger, ' + esc(t.channel) + '</div>';
+    h += '<div class="t">' + esc(t.label) + '</div>';
+    if (t.behind_the_scenes && t.behind_the_scenes.length) {
+      h += '<ul>' + t.behind_the_scenes.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>';
     }
     h += '</div>';
-  }
-
-  if (detail > 66 && est.line_items.length > 1){
-    h += '<div class="sec"><h2>Line by line</h2>';
-    for (var j=0;j<est.line_items.length;j++){
-      var li = est.line_items[j];
-      var txt = (est.unit === 'price')
-        ? EFK.fmtMoney(li.lo, CFG)+' to '+EFK.fmtMoney(li.hi, CFG)
-        : EFK.fmtHours(li.lo)+' to '+EFK.fmtHours(li.hi)+' hours';
-      h += '<div class="li"><span>'+esc(li.label)+'</span><b>'+esc(txt)+'</b></div>';
-    }
-    h += '</div>';
-  }
-
-  var url = safeHref(CFG.business.booking_url);
-  if (url) {
-    h += '<a class="btn" href="'+esc(url)+'" target="_blank" rel="noopener" data-act="cta">'+esc(CFG.result_copy.cta_label)+'</a>';
-  } else {
-    h += '<button class="btn" type="button" disabled>'+esc(CFG.result_copy.cta_label)+'</button>';
-  }
-
-  /* Honest lead copy. With nowhere to send, there is no contact form at all and
-   * the booking button is the one next step. With somewhere to send, the page
-   * only says "sent" after the send really went out. */
-  if (mode() !== 'none'){
-    if (sendState) h += '<div class="sec" id="postcontact">' + statusHtml(sendState) + '</div>';
-    else if (!CFG.toggles.contact_before_result) h += '<div class="sec" id="postcontact">' + viewContactInline() + '</div>';
-  }
-
-  h += '<div class="disc">'+esc(CFG.result_copy.disclaimer)+'</div>';
-  h += '<div style="margin-top:14px"><button class="btn ghost" type="button" data-act="restart">Start over</button></div>';
-  return h;
-}
-
-function statusHtml(st){
-  var biz = esc(bizName());
-  if (st === 'sending') return '<h2 class="st"><span class="spin" style="border-color:var(--brand-line);border-top-color:var(--brand)"></span>Sending your details to '+biz+'</h2>';
-  if (st === 'sent') return '<h2 class="st">Sent to '+biz+'</h2><div class="fine" style="margin-top:0">They have your answers and this range. The fastest next step is the button above.</div>';
-  if (st === 'unknown') return '<h2 class="st">We could not confirm it went through</h2><div class="fine" style="margin-top:0">Your estimate above is still yours. The fastest next step is the button above.</div>';
-  return '<h2 class="st">We could not send your details</h2><div class="fine" style="margin-top:0">Nothing reached '+biz+' this time. Your estimate above is still yours, and the fastest next step is the button above.</div>';
-}
-
-function viewContactInline(){
-  var f = CFG.lead_capture.fields;
-  var h = '<h2>Send this estimate to '+esc(bizName())+'</h2>'
-    + '<div class="fine" style="margin:-4px 0 10px">They get your answers with this range, so you do not have to explain it twice.</div>'
-    + '<div class="fields">';
-  if (f.indexOf('name') !== -1) h += fld('name','Your name','text','Alex Rivera','name');
-  if (f.indexOf('email') !== -1) h += fld('email','Email','email','alex@example.com','email');
-  if (f.indexOf('phone') !== -1) h += fld('phone','Phone (optional)','tel','(555) 012 3456','tel');
-  h += '</div>';
-  h += '<input class="hp" type="text" name="company" id="hp" tabindex="-1" autocomplete="off" aria-hidden="true">';
-  h += '<div class="err" id="err">Add a valid email address so they can reach you.</div>';
-  h += '<button class="btn ghost" type="button" data-act="contact">Send my estimate</button>';
-  if (CFG.lead_capture.consent_text) h += '<div class="fine">'+esc(CFG.lead_capture.consent_text)+'</div>';
-  return h;
-}
-
-/* ------------------------------------------------------------------ *
- * Interaction
- * ------------------------------------------------------------------ */
-function showErr(msg){
-  var e = root.querySelector('#err');
-  if (!e) return;
-  if (msg) e.textContent = msg;
-  e.classList.add('on');
-}
-
-root.addEventListener('click', onClick);
-
-function wire(step){
-  var inputs = root.querySelectorAll('.inp');
-  for (var i=0;i<inputs.length;i++){
-    inputs[i].addEventListener('input', onInput);
-    inputs[i].addEventListener('keydown', function(ev){
-      if (ev.key === 'Enter'){
-        ev.preventDefault();
-        var b = root.querySelector('.btn:not([disabled])');
-        if (b && b.tagName === 'BUTTON') b.click();
+    var lastDelay = 0, lastAnchor = 'booked';
+    for (var i = 0; i < steps.length; i++) {
+      var s = steps[i];
+      if (s.type === 'wait') {
+        h += '<div class="link"></div><div class="node wait" data-step="' + esc(s.id) + '"><span>Wait ' + esc(span(s.duration)) + '</span></div>';
+        continue;
       }
-    });
-  }
-}
-
-function onInput(ev){
-  var id = ev.target.id || '';
-  if (id.indexOf('f-') === 0) contact[id.slice(2)] = ev.target.value;
-  var e = root.querySelector('#err');
-  if (e) e.classList.remove('on');
-}
-
-function onClick(ev){
-  var t = ev.target;
-  while (t && t !== root && !t.getAttribute('data-act')) t = t.parentNode;
-  if (!t || t === root) return;
-  var act = t.getAttribute('data-act');
-
-  if (act === 'back'){ stepIndex--; render(); return; }
-
-  if (act === 'restart'){
-    answers = { services: [], q: {} };
-    contact = { name:'', email:'', phone:'' };
-    sendState = ''; stepIndex = 0; render(); return;
+      if (booking && s.anchor !== lastAnchor && BRANCH[s.anchor]) {
+        h += '<div class="link tall"></div><div class="node branch"><span>' + esc(BRANCH[s.anchor]) + '</span></div>';
+      } else if (!booking && s.delay - lastDelay >= 60) {
+        /* a gap of an hour or more reads as a wait, the way HighLevel builds it */
+        h += '<div class="link"></div><div class="node wait"><span>Wait ' + esc(span(s.delay - lastDelay)) + '</span></div>';
+      }
+      if (booking) lastAnchor = s.anchor;
+      lastDelay = s.delay;
+      h += '<div class="link"></div>' + stepCard(s, p, cfg, booking);
+    }
+    return h;
   }
 
-  if (act === 'svc'){
-    var key = t.getAttribute('data-key');
-    var at = answers.services.indexOf(key);
-    if (CFG.allow_multiple_services === false){
-      answers.services = [key];
-      render();
-      setTimeout(function(){ stepIndex = 1; render(); }, 130);
+  function setConfig(raw, fromText) {
+    var d = EFK.doctor(raw);
+    state.cfg = d.config;
+    state.from = fromText;
+    document.getElementById('srcnote').textContent = fromText;
+    render();
+  }
+
+  function loadNiche(key) {
+    state.key = key;
+    var inlined = PRESETS[key];
+    /* Over http(s) read the preset file next to this page, so an edited preset shows.
+     * From a file on your computer the browser blocks that, so the built in copy is used. */
+    if (/^https?:$/.test(location.protocol) && window.fetch) {
+      fetch('presets/' + encodeURIComponent(key) + '.json', { cache: 'no-store' })
+        .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+        .then(function (j) { if (state.key === key) setConfig(j, 'From presets/' + key + '.json'); })
+        .catch(function () { if (state.key === key) setConfig(inlined, 'Built in copy of the ' + nicheLabel(key) + ' preset'); });
       return;
     }
-    if (at === -1) answers.services.push(key); else answers.services.splice(at,1);
-    dropStaleAnswers();
-    render(); return;
+    setConfig(inlined, 'Built in copy of the ' + nicheLabel(key) + ' preset');
   }
 
-  if (act === 'opt'){
-    var qk = t.getAttribute('data-q');
-    var ix = parseInt(t.getAttribute('data-i'),10);
-    var q = findQuestion(qk);
-    if (!q) return;
-    if (q.type === 'multi'){
-      var arr = answers.q[qk] || [];
-      var pos = arr.indexOf(ix);
-      if (pos === -1) arr.push(ix); else arr.splice(pos,1);
-      answers.q[qk] = arr;
-      render(); return;
-    }
-    answers.q[qk] = ix;
-    render();
-    setTimeout(function(){ stepIndex++; render(); }, 130);
-    return;
-  }
-
-  if (act === 'numnext'){
-    var el = root.querySelector('#numin');
-    var q2 = currentSteps()[stepIndex].q;
-    var v = el ? parseFloat(el.value) : NaN;
-    if (!isFinite(v) || v < q2.min || v > q2.max){ showErr(); return; }
-    answers.q[q2.key] = v;
-    stepIndex++; render(); return;
-  }
-
-  if (act === 'next'){
-    var st = currentSteps()[stepIndex];
-    if (st.kind === 'services' && !answers.services.length){ showErr(); return; }
-    if (st.kind === 'question' && st.q.type === 'multi'){
-      var a = answers.q[st.q.key];
-      if (!a || !a.length){ showErr(); return; }
-    }
-    stepIndex++; render(); return;
-  }
-
-  if (act === 'contact'){
-    var hp = root.querySelector('#hp');
-    if (hp && hp.value) botFlag = true;
-    if ((Date.now() - LOADED_AT) / 1000 < MIN_SECONDS) botFlag = true;
-    var email = (contact.email || '').trim();
-    if (!/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(email)){ showErr('Add a valid email address so they can reach you.'); return; }
-    t.setAttribute('disabled','disabled');
-    sendState = 'sending';
-    send().then(function(st){
-      sendState = (st === 'none') ? '' : st;
-      var box = root.querySelector('#postcontact');
-      if (box) { box.innerHTML = sendState ? statusHtml(sendState) : ''; postHeight(); }
-    });
-    if (CFG.toggles.contact_before_result){ stepIndex++; render(); }
-    else {
-      var pc = root.querySelector('#postcontact');
-      if (pc) pc.innerHTML = statusHtml('sending');
-      postHeight();
-    }
-    return;
-  }
-}
-
-function findQuestion(key){
-  for (var i=0;i<CFG.questions.length;i++) if (CFG.questions[i].key === key) return CFG.questions[i];
-  return null;
-}
-
-/* Drop answers to questions that no longer apply after a service change. */
-function dropStaleAnswers(){
-  var live = {};
-  var qs = EFK.applicableQuestions(CFG, answers.services);
-  for (var i=0;i<qs.length;i++) live[qs[i].key] = 1;
-  for (var k in answers.q) if (Object.prototype.hasOwnProperty.call(answers.q,k) && !live[k]) delete answers.q[k];
-}
-
-/* ------------------------------------------------------------------ *
- * Send. Never blocks the result.
- * ------------------------------------------------------------------ */
-/* Resolves to 'sent', 'failed', 'unknown' (no answer in 15 seconds) or 'none'.
- * The engine does the sending (EFK.sendLead), so the rules live in one place:
- * a webhook is posted no-cors, the email relay must answer success, and when the
- * CRM webhook fails or times out with a backup email key set, the lead is emailed
- * to the owner with an ALERT line first. Only a real delivery comes back 'sent'. */
-function send(){
-  if (mode() === 'none') return Promise.resolve('none');
-  if (botFlag) return Promise.resolve('sent');
-  try {
-    var meta = {
-      /* never the #fragment: on a live link that is the whole settings block */
-      page_url: (function(){ try { return location.href.split('#')[0].slice(0,400); } catch(e){ return ''; } })(),
-      utm_source: UTM.utm_source, utm_medium: UTM.utm_medium, utm_campaign: UTM.utm_campaign,
-      submitted_at: new Date().toISOString()
+  function readOwnFile(file) {
+    var err = document.getElementById('ownerr');
+    err.innerHTML = '';
+    var fr = new FileReader();
+    fr.onload = function () {
+      var text = String(fr.result || '');
+      var m = text.match(/<script type="application\/json" id="FUNNEL_CONFIG">([\s\S]*?)<\/script>/);
+      var json = m ? m[1] : text;
+      var parsed = null;
+      try { parsed = JSON.parse(json); } catch (e) { try { parsed = EFK.lenientParse(json); } catch (e2) { parsed = null; } }
+      if (!parsed || typeof parsed !== 'object' || !parsed.services) {
+        err.innerHTML = '<div class="err">That file has no funnel settings in it. Pick the my-funnel.html the Studio downloaded, or your my-config.json.</div>';
+        return;
+      }
+      state.key = '';
+      document.getElementById('niche').value = '';
+      setConfig(parsed, 'From your file: ' + file.name);
     };
-    var f = (typeof fetch === 'function') ? fetch.bind(window) : null;
-    return EFK.sendLead(CFG, answers, contact, meta, { fetch: f })
-      .then(function(r){ return (r && r.state) || 'failed'; }, function(){ return 'failed'; });
-  } catch(e){ return Promise.resolve('failed'); }
-}
-
-/* ------------------------------------------------------------------ *
- * Tell the parent page how tall we are (HighLevel iframe auto-height)
- * ------------------------------------------------------------------ */
-var lastH = 0;
-function postHeight(){
-  try {
-    var h = Math.max(
-      document.body.scrollHeight, document.documentElement.scrollHeight,
-      document.body.offsetHeight, document.documentElement.offsetHeight
-    );
-    if (Math.abs(h - lastH) < 4) return;
-    sendHeight(h);
-  } catch(e){}
-}
-function sendHeight(h){
-  lastH = h;
-  if (window.parent && window.parent !== window){
-    /* the named shape from CONFIG-CONTRACT P1 */
-    window.parent.postMessage({ efk:'height', value:h }, '*');
-    /* older snippets listened for this one, so both go out */
-    window.parent.postMessage({ type:'efk-height', height:h, id:'estimate-funnel' }, '*');
+    fr.onerror = function () { err.innerHTML = '<div class="err">That file could not be read. Try again.</div>'; };
+    fr.readAsText(file);
   }
-}
-/* Height watching is event driven on purpose. A repeating timer would keep the
- * page busy forever, which breaks screenshot tools and wastes battery. */
-try {
-  if (typeof ResizeObserver === 'function'){
-    new ResizeObserver(postHeight).observe(document.documentElement);
-  } else {
-    var ticks = 0;
-    var iv = setInterval(function(){ postHeight(); if (++ticks > 20) clearInterval(iv); }, 500);
+
+  /* ---- wire up ---- */
+  var sel = document.getElementById('niche');
+  var keys = Object.keys(PRESETS).sort(function (a, b) { return nicheLabel(a).localeCompare(nicheLabel(b)); });
+  sel.innerHTML = '<option value="" disabled>Your own file</option>' +
+    keys.map(function (k) { return '<option value="' + esc(k) + '">' + esc(nicheLabel(k)) + '</option>'; }).join('');
+  sel.value = PRESETS.hvac ? 'hvac' : keys[0];
+  sel.addEventListener('change', function () { if (sel.value) loadNiche(sel.value); });
+  document.getElementById('ownfile').addEventListener('change', function (e) { if (e.target.files && e.target.files[0]) readOwnFile(e.target.files[0]); e.target.value = ''; });
+  document.getElementById('print').addEventListener('click', function () { window.print(); });
+  document.getElementById('canvas').addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('.toggle') : null;
+    if (!b) return;
+    toggleCard(b);
+  });
+  document.getElementById('canvas-booking').addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('.toggle') : null;
+    if (b) toggleCard(b);
+  });
+  function toggleCard(b) {
+    var card = b.closest('.step');
+    var full = card.querySelector('.body.full'), short = card.querySelector('.body.short');
+    var open = b.getAttribute('aria-expanded') === 'true';
+    full.hidden = open; if (short) short.hidden = !open;
+    b.setAttribute('aria-expanded', open ? 'false' : 'true');
+    b.textContent = open ? 'Preview full message' : 'Hide full message';
   }
-} catch(e){}
-window.addEventListener('resize', postHeight);
-window.addEventListener('load', postHeight);
-/* the parent can ask at any time */
-window.addEventListener('message', function(ev){
-  try {
-    var d = ev.data;
-    if (d && d.efk === 'height?'){
-      lastH = 0;
-      postHeight();
-    }
-  } catch(e){}
-});
 
-/* ------------------------------------------------------------------ *
- * Self test: walks the whole funnel with no human. Read with --dump-dom.
- * ------------------------------------------------------------------ */
-function selftest(){
-  var log = [], fails = 0;
-  function check(name, cond, extra){
-    if (cond) log.push('PASS ' + name);
-    else { log.push('FAIL ' + name + (extra ? ' :: ' + extra : '')); fails++; }
-  }
-  try {
-    check('config ok', DX.ok, DX.errors.join(' | '));
-    check('services present', CFG.services.length > 0);
-
-    /* pick the first service */
-    var svcBtn = root.querySelector('[data-act="svc"]');
-    check('service picker rendered', !!svcBtn);
-    if (svcBtn) svcBtn.click();
-    check('service selected', answers.services.length > 0);
-
-    var next = root.querySelector('[data-act="next"]');
-    if (next && !next.disabled) next.click();
-
-    /* answer every question screen */
-    var guard = 0;
-    while (guard++ < 40){
-      var steps = currentSteps();
-      var st = steps[stepIndex];
-      if (!st || st.kind === 'result' || st.kind === 'contact') break;
-      if (st.kind === 'question'){
-        if (st.q.type === 'number'){
-          var ni = root.querySelector('#numin');
-          if (ni) ni.value = st.q.min;
-          var nb = root.querySelector('[data-act="numnext"]');
-          if (nb) nb.click(); else { stepIndex++; render(); }
-        } else {
-          var o = root.querySelector('[data-act="opt"]');
-          if (o) { answers.q[st.q.key] = st.q.type === 'multi' ? [0] : 0; stepIndex++; render(); }
-          else { stepIndex++; render(); }
-        }
-      } else { stepIndex++; render(); }
-    }
-    check('walked past the questions in under 40 steps', guard < 40);
-
-    /* contact step if it comes first */
-    var stepsNow = currentSteps();
-    if (stepsNow[stepIndex] && stepsNow[stepIndex].kind === 'contact'){
-      contact.email = 'selftest@example.com';
-      var em = root.querySelector('#f-email');
-      if (em) em.value = contact.email;
-      LOADED_AT = Date.now() - 99999;
-      var cb = root.querySelector('[data-act="contact"]');
-      check('contact button present', !!cb);
-      if (cb) cb.click();
-    }
-
-    /* force the result view */
-    var s2 = currentSteps();
-    stepIndex = s2.length - 1;
-    render();
-
-    var num = root.querySelector('.res-num');
-    check('result screen shows a number', !!num && /\d/.test(num.textContent), num ? num.textContent : 'no .res-num');
-
-    var est = EFK.estimate(CFG, answers);
-    check('low is not above high', est.lo <= est.hi, est.lo + ' > ' + est.hi);
-    check('numbers are real numbers', isFinite(est.lo) && isFinite(est.hi));
-
-    var cta = root.querySelector('[data-act="cta"]');
-    check('one booking button on the result', !!cta || !CFG.business.booking_url);
-    if (cta) check('booking link is https', /^https:\/\//.test(cta.getAttribute('href')), cta.getAttribute('href'));
-
-    var ctaCount = root.querySelectorAll('.btn[href]').length;
-    check('exactly one outbound call to action', ctaCount <= 1, 'found ' + ctaCount);
-
-    var payload = EFK.payload(CFG, answers, { name:'T', email:'t@example.com', phone:'' }, {});
-    var wantKeys = ['name','email','phone','business_name','niche','services_text','estimate_low','estimate_high','estimate_unit','currency','timeline_text','answers_text','knobs_text','page_url','utm_source','utm_medium','utm_campaign','submitted_at','kit_version','summary_text','estimate_low_text','estimate_high_text','possibly_fake','fake_reasons','watch_match'];
-    var got = Object.keys(payload).sort().join(',');
-    check('webhook payload keys are the fixed set', got === wantKeys.slice().sort().join(','), got);
-
-    check('no external requests in this file', document.querySelectorAll('link[href^="http"], script[src], img[src^="http:"]').length === 0);
-
-    /* v1.1 honesty: with nowhere to send, no contact form and no "sent" anywhere */
-    var saved = CFG.lead_capture;
-    CFG.lead_capture = JSON.parse(JSON.stringify(saved));
-    CFG.lead_capture.destination = 'none'; CFG.lead_capture.webhook_url = ''; CFG.lead_capture.email_key = '';
-    sendState = ''; render();
-    check('nowhere mode shows no contact form', !root.querySelector('[data-act="contact"]'));
-    check('nowhere mode never says sent', !/\bsent\b/i.test(root.querySelector('.card').textContent), root.querySelector('.card').textContent.slice(0,200));
-    check('nowhere mode says nothing is sent', /Nothing is sent anywhere/.test(root.textContent));
-    CFG.lead_capture.destination = 'webhook'; CFG.lead_capture.webhook_url = 'https://hooks.selftest.co/in';
-    render();
-    check('webhook mode offers to send the estimate', !!root.querySelector('[data-act="contact"]'));
-    sendState = 'failed'; render();
-    check('a failed send is never called sent', !/Sent to/.test(root.textContent) && /could not send/i.test(root.textContent));
-    sendState = 'sent'; render();
-    check('a real send says sent', /Sent to/.test(root.textContent));
-    CFG.lead_capture = saved; sendState = ''; render();
-    check('the live footer shows only on a live link', RUNNER ? !!root.querySelector('.kitfoot') : !root.querySelector('.kitfoot'));
-    if (RUNNER) check('the live footer has the report link', /Report this page/.test(root.textContent));
-  } catch(err){
-    log.push('FAIL selftest crashed :: ' + (err && err.message ? err.message : String(err)));
-    fails++;
-  }
-  var box = document.getElementById('selftest');
-  box.className = '';
-  box.setAttribute('style','position:fixed;left:0;bottom:0;right:0;z-index:99999;background:#111827;color:#d1fae5;font:12px/1.5 ui-monospace,Menlo,monospace;padding:10px;max-height:44vh;overflow:auto;clip:auto');
-  /* built with text nodes, because a log line can carry text from the settings */
-  box.textContent = '';
-  var vb = document.createElement('b');
-  vb.id = 'selftest-verdict';
-  vb.textContent = fails === 0 ? 'SELFTEST RESULT: ALL PASS' : 'SELFTEST RESULT: ' + fails + ' FAIL';
-  box.appendChild(vb);
-  for (var li2=0; li2<log.length; li2++){ box.appendChild(document.createElement('br')); box.appendChild(document.createTextNode(log[li2])); }
-}
-
-/* go */
-function start(){
-  applyBrand();
-  if (PREVIEW_RESULT){
-    /* Jump straight to a finished result. Used for screenshots and for the
-     * Studio's live preview, never by a real visitor. Nothing is marked as sent. */
-    try {
-      var samp = EFK.sampleLeads(CFG);
-      answers = samp[1] ? samp[1].answers : answers;
-      stepIndex = currentSteps().length - 1;
-    } catch(e){}
-  }
-  render();
-  if (SELFTEST) setTimeout(selftest, 60);
-}
-
-if (RUNNER){
-  var frag = '';
-  try { frag = location.hash || ''; } catch(e){}
-  try { window.addEventListener('hashchange', function(){ location.reload(); }); } catch(e){}
-  EFK.decodeLink(frag).then(function(r){
-    if (!r || !r.ok){ broken(); return; }
-    DX = { ok:true, errors:[], config:r.config };
-    CFG = r.config;
-    start();
-  }, broken);
-} else {
-  DX = EFK.doctor(RAW);
-  /* The untouched template has no settings, so a visitor gets the setup message.
-   * Opened with ?selftest=1 it tests itself against a small built-in sample instead. */
-  if (!DX.ok && SELFTEST && !/"services"/.test(RAW)) {
-    DX = EFK.doctor({ business: { name: 'Selftest Plumbing', booking_url: 'https://cal.selftest-plumbing.co/book' },
-      services: [{ key: 'fix', label: 'Fix a leak', lo: 150, hi: 450, example_data: false }, { key: 'heater', label: 'New water heater', lo: 1400, hi: 3200, example_data: false }],
-      questions: [{ key: 'urgency', label: 'How soon do you need this?', role: 'urgency', options: [
-        { label: 'Today', effect: { type: 'multiply', value: 1.25 } }, { label: 'This week', effect: { type: 'none', value: 0 } }, { label: 'Not sure', effect: { type: 'widen', value: 0.1 } }] }] });
-  }
-  CFG = DX.config;
-  if (!DX.ok) { panic('This estimate page is not set up yet.', DX.errors); return; }
-  start();
-}
-
+  if (!EFK) { document.getElementById('canvas').innerHTML = '<div class="err">The estimate engine did not load. Rebuild this page.</div>'; return; }
+  loadNiche(sel.value);
 })();
 </script>
 </body>

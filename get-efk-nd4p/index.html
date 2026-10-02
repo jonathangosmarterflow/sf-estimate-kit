@@ -66,7 +66,7 @@ footer a{color:var(--ind);text-decoration:none;font-weight:600}
 <body>
 <nav><div class="nav-in"><span class="wordmark">Smarter<b>Flow</b></span></div></nav>
 <main>
-<span class="pill" id="verPill">Your copy &middot; v1.1</span>
+<span class="pill" id="verPill">Your copy &middot; v1.2</span>
 <h1>The Estimate Funnel Kit</h1>
 <p class="sub">Bookmark this page. It is yours, it stays up, and updates land here. Nothing expires.</p>
 
@@ -78,6 +78,7 @@ footer a{color:var(--ind);text-decoration:none;font-weight:600}
 <a class="btn ghost" id="funnelBtn" href="./funnel.html">Preview the lead-facing funnel</a>
 <p class="links"><a id="blankLink" href="./studio.html">Start from a blank niche</a></p>
 <p class="links">Want to see a finished one first? <a href="../demo/">Try the demo</a></p>
+<p class="links">See what sends when: <a id="mapLink" href="./followup-map.html">open the follow-up map</a></p>
 </div>
 
 <div class="card">
@@ -181,7 +182,7 @@ if(location.protocol !== 'file:'){ // local preview skips every probe
     }).catch(function(){ /* offline or blocked: leave the button alone */ });
   })(0);
 
-  ['studioBtn|./studio.html', 'blankLink|./studio.html', 'funnelBtn|./funnel.html', 'startBtn|./START-HERE.html']
+  ['studioBtn|./studio.html', 'blankLink|./studio.html', 'funnelBtn|./funnel.html', 'startBtn|./START-HERE.html', 'mapLink|./followup-map.html']
   .forEach(function(pair){
     var parts = pair.split('|'), el = document.getElementById(parts[0]), url = parts[1];
     fetch(url, {method:'HEAD'}).then(function(r){
