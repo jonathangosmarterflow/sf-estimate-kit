@@ -772,7 +772,7 @@ label.fl{font-size:13px;font-weight:700;color:var(--ink-soft);display:block;marg
       },
       toggles: { contact_before_result: false, show_timeline: true, show_drivers: true },
       calibration: { per_service: {}, last_trained: null, rounds: 0 },
-      lead_capture: { destination: 'none', webhook_url: '', email_key: '', fields: ['name', 'email', 'phone'], consent_text: '' },
+      lead_capture: { destination: 'none', webhook_url: '', email_key: '', alert_email_key: '', fields: ['name', 'email', 'phone'], consent_text: '' },
       result_copy: {
         headline: 'Your estimated range',
         disclaimer: 'This is an estimate, not a final quote. Your exact price depends on the details, which we go through with you before any work starts.',
@@ -1326,6 +1326,15 @@ label.fl{font-size:13px;font-weight:700;color:var(--ink-soft);display:block;marg
       ek = '';
     }
     cfg.lead_capture.email_key = ek.toLowerCase();
+
+    /* v1.1.2: the backup email when the CRM send fails. Also a Web3Forms access key,
+     * because Web3Forms sends to the address the key was made for. */
+    var alk = isStr(rawLead.alert_email_key) ? rawLead.alert_email_key.trim().replace(/^["'\s]+|["'\s]+$/g, '') : '';
+    if (alk && !UUID_RE.test(alk)) {
+      uniqPush(repairs, 'Your backup email key did not look right (it should look like 8-4-4-4-12 letters and numbers), so we left it empty. Copy it again from the Web3Forms email and paste it on the Publish tab.');
+      alk = '';
+    }
+    cfg.lead_capture.alert_email_key = alk.toLowerCase();
 
     /* where leads go. Older configs have no destination: a webhook link means
      * webhook, otherwise nowhere. Nowhere is honest, the funnel then never says sent. */
@@ -2102,6 +2111,88 @@ label.fl{font-size:13px;font-weight:700;color:var(--ink-soft);display:block;marg
     };
   }
 
+  /* v1.1.2: the owner alert. When the CRM webhook fails or times out and a backup
+   * email key is set, the same lead goes to the owner by email, ALERT line first. */
+  var ALERT_LINE = 'ALERT: your CRM webhook failed, this lead was emailed instead. Check your funnel settings.';
+
+  function alertKey(config) {
+    var lc = config && isObj(config.lead_capture) ? config.lead_capture : {};
+    var k = isStr(lc.alert_email_key) ? lc.alert_email_key.trim().toLowerCase() : '';
+    return UUID_RE.test(k) ? k : '';
+  }
+
+  function alertRelayBody(config, answers, contact, meta) {
+    var b = relayBody(config, answers, contact, meta);
+    /* the alert key goes first in the email Web3Forms writes, the message starts with it too */
+    return {
+      access_key: alertKey(config),
+      subject: ('ALERT, CRM send failed. ' + b.subject).slice(0, 150),
+      from_name: b.from_name,
+      alert: ALERT_LINE,
+      name: b.name,
+      email: b.email,
+      phone: b.phone,
+      estimate: b.estimate,
+      message: ALERT_LINE + '\n\n' + b.message,
+      page_url: b.page_url
+    };
+  }
+
+  /* Send one lead. deps.fetch is the browser's fetch (or a test double), deps.timeoutMs
+   * defaults to 15 seconds per attempt. Resolves, never rejects, to
+   * { state: 'sent' | 'failed' | 'unknown' | 'none', via: 'webhook' | 'email' | 'alert' | '' }.
+   * A webhook is posted no-cors (most CRMs send no CORS headers), so the browser only tells us
+   * whether it went out, and a network failure is 'failed'. The email relay answers with JSON,
+   * so there 'sent' means the relay said success. 'sent' is never said for anything else. */
+  function sendLead(config, answers, contact, meta, deps) {
+    var d = isObj(deps) ? deps : {};
+    var f = typeof d.fetch === 'function' ? d.fetch : null;
+    var ms = toNum(d.timeoutMs);
+    if (ms === null || ms <= 0) ms = 15000;
+    var m = leadMode(config);
+    if (m === 'none') return Promise.resolve({ state: 'none', via: '' });
+    if (!f) return Promise.resolve({ state: 'failed', via: m });
+
+    function timed(p) {
+      return new Promise(function (res) {
+        var done = false;
+        var t = setTimeout(function () { if (!done) { done = true; res('unknown'); } }, ms);
+        p.then(function (v) { if (!done) { done = true; clearTimeout(t); res(v); } },
+          function () { if (!done) { done = true; clearTimeout(t); res('failed'); } });
+      });
+    }
+    function relay(body) {
+      return timed(Promise.resolve().then(function () {
+        return f(RELAY_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify(body)
+        });
+      }).then(function (r) {
+        return r.json().then(function (j) { return (r.ok && j && j.success === true) ? 'sent' : 'failed'; }, function () { return 'failed'; });
+      }, function () { return 'failed'; }));
+    }
+
+    if (m === 'email') {
+      return relay(relayBody(config, answers, contact, meta)).then(function (s) { return { state: s, via: 'email' }; });
+    }
+    var url = config.lead_capture.webhook_url;
+    return timed(Promise.resolve().then(function () {
+      return f(url, {
+        method: 'POST', mode: 'no-cors', keepalive: true,
+        headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+        body: JSON.stringify(payload(config, answers, contact, meta))
+      });
+    }).then(function () { return 'sent'; }, function () { return 'failed'; })).then(function (w) {
+      if (w === 'sent' || !alertKey(config)) return { state: w, via: 'webhook' };
+      return relay(alertRelayBody(config, answers, contact, meta)).then(function (a) {
+        if (a === 'sent') return { state: 'sent', via: 'alert' };
+        /* nothing confirmed: 'unknown' when either attempt might still have landed */
+        return { state: (w === 'unknown' || a === 'unknown') ? 'unknown' : 'failed', via: 'alert' };
+      });
+    });
+  }
+
   /* ------------------------------------------------------------------ *
    * 10c. The live link (v1.1): the whole config travels in the URL fragment.
    * Link shape: <LIVE_BASE>/#v1.<base64url(deflate-raw(json))>, or v0. with
@@ -2210,6 +2301,7 @@ label.fl{font-size:13px;font-weight:700;color:var(--ink-soft);display:block;marg
       if (!isStr(urls[i]) || !/^https:\/\/[^\s"'<>`\\]+$/i.test(urls[i].trim())) return linkFail('a link in the settings is not a plain https link');
     }
     if (lc.email_key !== undefined && lc.email_key !== '' && !(isStr(lc.email_key) && UUID_RE.test(lc.email_key.trim()))) return linkFail('the email key is not a key');
+    if (lc.alert_email_key !== undefined && lc.alert_email_key !== '' && !(isStr(lc.alert_email_key) && UUID_RE.test(lc.alert_email_key.trim()))) return linkFail('the backup email key is not a key');
     var dx = doctor(raw);
     if (!dx.ok) return linkFail('the settings do not pass the doctor: ' + dx.errors.join(' '));
     var cfg = dx.config;
@@ -2335,6 +2427,10 @@ label.fl{font-size:13px;font-weight:700;color:var(--ink-soft);display:block;marg
     RELAY_URL: RELAY_URL,
     leadMode: leadMode,
     relayBody: relayBody,
+    ALERT_LINE: ALERT_LINE,
+    alertKey: alertKey,
+    alertRelayBody: alertRelayBody,
+    sendLead: sendLead,
     isPlaceholderUrl: isPlaceholderUrl,
     linkConfig: linkConfig,
     encodeLink: encodeLink,
@@ -2997,46 +3093,24 @@ function dropStaleAnswers(){
  * Send. Never blocks the result.
  * ------------------------------------------------------------------ */
 /* Resolves to 'sent', 'failed', 'unknown' (no answer in 15 seconds) or 'none'.
- * A webhook is posted no-cors (most CRMs send no CORS headers), so the browser
- * only tells us whether it went out, and a network failure is 'failed'. The email
- * relay answers with JSON, so there 'sent' means the relay said success. */
+ * The engine does the sending (EFK.sendLead), so the rules live in one place:
+ * a webhook is posted no-cors, the email relay must answer success, and when the
+ * CRM webhook fails or times out with a backup email key set, the lead is emailed
+ * to the owner with an ALERT line first. Only a real delivery comes back 'sent'. */
 function send(){
-  var m = mode();
-  if (m === 'none') return Promise.resolve('none');
+  if (mode() === 'none') return Promise.resolve('none');
   if (botFlag) return Promise.resolve('sent');
   try {
-    if (typeof fetch !== 'function') return Promise.resolve('failed');
     var meta = {
       /* never the #fragment: on a live link that is the whole settings block */
       page_url: (function(){ try { return location.href.split('#')[0].slice(0,400); } catch(e){ return ''; } })(),
       utm_source: UTM.utm_source, utm_medium: UTM.utm_medium, utm_campaign: UTM.utm_campaign,
       submitted_at: new Date().toISOString()
     };
-    if (m === 'webhook'){
-      var url = safeHref(CFG.lead_capture.webhook_url);
-      if (!url) return Promise.resolve('failed');
-      return withTimeout(fetch(url, {
-        method:'POST', mode:'no-cors', keepalive:true,
-        headers:{ 'Content-Type':'text/plain;charset=UTF-8' },
-        body: JSON.stringify(EFK.payload(CFG, answers, contact, meta))
-      }).then(function(){ return 'sent'; }, function(){ return 'failed'; }));
-    }
-    return withTimeout(fetch(EFK.RELAY_URL, {
-      method:'POST',
-      headers:{ 'Content-Type':'application/json', 'Accept':'application/json' },
-      body: JSON.stringify(EFK.relayBody(CFG, answers, contact, meta))
-    }).then(function(r){
-      return r.json().then(function(j){ return (r.ok && j && j.success === true) ? 'sent' : 'failed'; }, function(){ return 'failed'; });
-    }, function(){ return 'failed'; }));
+    var f = (typeof fetch === 'function') ? fetch.bind(window) : null;
+    return EFK.sendLead(CFG, answers, contact, meta, { fetch: f })
+      .then(function(r){ return (r && r.state) || 'failed'; }, function(){ return 'failed'; });
   } catch(e){ return Promise.resolve('failed'); }
-}
-
-function withTimeout(p){
-  return new Promise(function(res){
-    var done = false;
-    var t = setTimeout(function(){ if (!done){ done = true; res('unknown'); } }, 15000);
-    p.then(function(v){ if (!done){ done = true; clearTimeout(t); res(v); } }, function(){ if (!done){ done = true; clearTimeout(t); res('failed'); } });
-  });
 }
 
 /* ------------------------------------------------------------------ *
