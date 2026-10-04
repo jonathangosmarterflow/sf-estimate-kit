@@ -90,20 +90,6 @@ footer a{color:var(--ind);text-decoration:none;font-weight:600}
 <p class="quiet"><a id="deliveryLink" href="./get-efk-nd4p/">Your kit page has the download, the guides and everything else</a>. Bookmark it. I also sent you a short email from jonathan@gosmarterflow.com with one quick question. Reply to it any time you need help or the link again. Not in your inbox? Check spam or promotions and move it to your inbox, so my replies reach you.</p>
 </div>
 
-<div class="snap">
-<h2>What are you going to build with it?</h2>
-<p>Optional, 20 seconds. The answers decide which presets and install guides get written next.</p>
-<form id="buildForm" autocomplete="off">
-  <label for="niche">Your niche or trade</label>
-  <input id="niche" name="niche" type="text" maxlength="80" placeholder="HVAC, roofing, web design, bookkeeping...">
-  <label for="building">What you are building, in one line</label>
-  <textarea id="building" name="building" maxlength="240" placeholder="An instant AC install range for my own company's site."></textarea>
-  <button class="btn sm2" type="submit">Send it</button>
-</form>
-<div id="formMsg"></div>
-<p class="fineprint">One line is plenty. No follow-up sequence hangs off this.</p>
-</div>
-
 <p class="tail">Stuck? Reply to my email and I will help.</p>
 <p class="tail small">Next video: the instant AI demo. Once a visitor has an instant estimate, the thing they want next is to see it working.</p>
 </main>
@@ -115,48 +101,11 @@ footer a{color:var(--ind);text-decoration:none;font-weight:600}
 // ---------------------------------------------------------------------------
 const DELIVERY_URL = "./get-efk-nd4p/";
 
-// FORM_WEBHOOK_URL: where the optional "what are you building" answer is posted.
-// Leave EMPTY until a HighLevel inbound webhook (or any endpoint) exists. While it
-// is empty the form still works for the buyer: it thanks them, keeps the answer in
-// this browser only, and nothing is lost that was ever promised to them.
-const FORM_WEBHOOK_URL = "";
-
 // The first win: the Studio with the HVAC example from the video loaded. The
 // Studio never replaces saved work with this example (urlPresetPlan in the kit),
 // so a second click, or the receipt email link, is always safe.
 document.getElementById('exampleBtn').href = DELIVERY_URL + 'studio.html?preset=hvac';
 document.getElementById('deliveryLink').href = DELIVERY_URL;
-
-document.getElementById('buildForm').addEventListener('submit', function(e){
-  e.preventDefault();
-  var niche = document.getElementById('niche').value.trim();
-  var building = document.getElementById('building').value.trim();
-  var msg = document.getElementById('formMsg');
-  var payload = {
-    niche: niche,
-    building: building,
-    source: 'efk-thank-you',
-    kit_version: '1.1',
-    submitted_at: new Date().toISOString(),
-    page_url: location.href
-  };
-
-  function done(){
-    msg.textContent = 'Got it. Thank you, that genuinely helps.';
-    msg.style.display = 'block';
-    document.getElementById('buildForm').style.display = 'none';
-  }
-
-  try { localStorage.setItem('efk_build_answer', JSON.stringify(payload)); } catch(err){ /* private mode, fine */ }
-
-  if(!FORM_WEBHOOK_URL){ done(); return; }
-
-  fetch(FORM_WEBHOOK_URL, {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify(payload)
-  }).then(done).catch(done);
-});
 </script>
 </body>
 </html>
